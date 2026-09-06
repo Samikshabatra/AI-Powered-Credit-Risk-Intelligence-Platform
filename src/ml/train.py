@@ -39,8 +39,12 @@ import lightgbm as lgb
 import matplotlib
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
 from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 matplotlib.use("Agg")  # figures are written to disk, never displayed
 import matplotlib.pyplot as plt  # noqa: E402
@@ -79,6 +83,21 @@ LGBM_PARAMS: dict = {
 }
 
 EARLY_STOPPING_ROUNDS = 200
+
+# Baselines are deliberately capped: they exist to answer "versus what?", not to
+# be tuned competitors. Depth and leaf size keep the forest to ~1 minute on 184k
+# rows while still being a fair, converged model rather than a strawman.
+RANDOM_FOREST_PARAMS: dict = {
+    "n_estimators": 300,
+    "max_depth": 12,
+    "min_samples_leaf": 50,
+    "class_weight": "balanced",
+    "n_jobs": -1,
+}
+LOGISTIC_PARAMS: dict = {
+    "class_weight": "balanced",
+    "max_iter": 2000,     # scaled 143-column input converges well inside this
+}
 
 
 # --------------------------------------------------------------------------- #
@@ -281,6 +300,100 @@ def plot_model_diagnostics(
 
 
 # --------------------------------------------------------------------------- #
+# Baselines
+# --------------------------------------------------------------------------- #
+def benchmark_baselines(
+    features: pd.DataFrame,
+    target: pd.Series,
+    splits: dict[str, np.ndarray],
+    lightgbm_holdout: dict[str, float],
+    seed: int,
+) -> dict[str, dict]:
+    """Score two honest baselines on the same holdout, to answer "versus what?".
+
+    Logistic regression and a random forest are fitted on the *same* train split,
+    with the *same* features and seed, and scored on the *same* untouched holdout
+    as LightGBM. Nothing else would be a fair comparison.
+
+    **Input assumption.** Neither baseline handles NaN, and neither handles
+    LightGBM's native categorical splits. The categorical columns are already
+    integer-coded by the preprocessor, so they are passed through as ordinary
+    numeric columns and the whole matrix is median-imputed. That treats an
+    arbitrary code ordering as if it were meaningful, which is exactly the
+    handicap a simple baseline carries in real life - and part of why LightGBM
+    wins. One-hot encoding 143 columns would be a different, much larger model,
+    not a baseline.
+
+    Imputer and scaler are fitted on train only and applied to holdout, so the
+    comparison carries no leakage the LightGBM number does not also carry.
+    """
+    x_train = features.iloc[splits["train"]]
+    x_holdout = features.iloc[splits["holdout"]]
+    y_train = target.iloc[splits["train"]].to_numpy()
+    y_holdout = target.iloc[splits["holdout"]].to_numpy()
+
+    imputer = SimpleImputer(strategy="median")
+    x_train_filled = imputer.fit_transform(x_train)
+    x_holdout_filled = imputer.transform(x_holdout)
+
+    results: dict[str, dict] = {}
+
+    # --- logistic regression: standard-scaled, because it is not scale-free ---
+    scaler = StandardScaler()
+    x_train_scaled = scaler.fit_transform(x_train_filled)
+    x_holdout_scaled = scaler.transform(x_holdout_filled)
+    with timed("Logistic regression baseline"):
+        logistic = LogisticRegression(**LOGISTIC_PARAMS, random_state=seed)
+        logistic.fit(x_train_scaled, y_train)
+    results["logistic_regression"] = discrimination_metrics(
+        y_holdout, logistic.predict_proba(x_holdout_scaled)[:, 1]
+    )
+
+    # --- random forest: no scaling needed, but still needs the imputation ---
+    with timed("Random forest baseline"):
+        forest = RandomForestClassifier(**RANDOM_FOREST_PARAMS, random_state=seed)
+        forest.fit(x_train_filled, y_train)
+    results["random_forest"] = discrimination_metrics(
+        y_holdout, forest.predict_proba(x_holdout_filled)[:, 1]
+    )
+
+    results["lightgbm"] = dict(lightgbm_holdout)
+
+    for name, scores in results.items():
+        logger.info("Baseline %-20s holdout ROC-AUC %.4f | PR-AUC %.4f",
+                    name, scores["roc_auc"], scores["pr_auc"])
+    return results
+
+
+def plot_baseline_comparison(baselines: dict[str, dict]) -> str:
+    """Grouped bar of holdout ROC-AUC and PR-AUC per model."""
+    labels = {
+        "logistic_regression": "Logistic\nregression",
+        "random_forest": "Random\nforest",
+        "lightgbm": "LightGBM\n(shipped)",
+    }
+    order = [name for name in labels if name in baselines]
+    positions = np.arange(len(order))
+    width = 0.36
+
+    figure, axis = plt.subplots(figsize=(6.2, 4.2))
+    roc = [baselines[name]["roc_auc"] for name in order]
+    prc = [baselines[name]["pr_auc"] for name in order]
+    bars_roc = axis.bar(positions - width / 2, roc, width, label="ROC-AUC",
+                        color="#1f4e79")
+    bars_prc = axis.bar(positions + width / 2, prc, width, label="PR-AUC",
+                        color="#c9772e")
+    for bars in (bars_roc, bars_prc):
+        axis.bar_label(bars, fmt="%.3f", fontsize=8, padding=2)
+
+    axis.set_xticks(positions, [labels[name] for name in order], fontsize=9)
+    axis.set(ylabel="Score", ylim=(0, 1.0),
+             title="Baseline comparison (same holdout, same features)")
+    axis.legend(fontsize=8)
+    return _save_figure(figure, "ml_baseline_comparison.png").name
+
+
+# --------------------------------------------------------------------------- #
 # Orchestration
 # --------------------------------------------------------------------------- #
 def run_training(sample: int | None = None, seed: int | None = None) -> dict:
@@ -345,6 +458,15 @@ def run_training(sample: int | None = None, seed: int | None = None) -> dict:
         "split": model.booster_.feature_importance("split"),
     }).sort_values("gain", ascending=False).reset_index(drop=True)
 
+    discrimination = {
+        name: discrimination_metrics(target.iloc[splits[name]].to_numpy(),
+                                     probabilities[name])
+        for name in ("train", "valid", "holdout")
+    }
+    baselines = benchmark_baselines(
+        features, target, splits, discrimination["holdout"], seed
+    )
+
     metrics = {
         "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "n_rows": int(len(frame)),
@@ -353,11 +475,7 @@ def run_training(sample: int | None = None, seed: int | None = None) -> dict:
         "best_iteration": int(model.best_iteration_),
         "scale_pos_weight": round(float(model.get_params()["scale_pos_weight"]), 3),
         "split_sizes": {name: int(len(index)) for name, index in splits.items()},
-        "discrimination": {
-            name: discrimination_metrics(target.iloc[splits[name]].to_numpy(),
-                                         probabilities[name])
-            for name in ("train", "valid", "holdout")
-        },
+        "discrimination": discrimination,
         "calibration": {
             "before": calibration_metrics(y_holdout, raw_scores["holdout"]),
             "after": calibration_metrics(y_holdout, p_holdout),
@@ -377,9 +495,10 @@ def run_training(sample: int | None = None, seed: int | None = None) -> dict:
         "risk_bands": band_summary(y_holdout, p_holdout, edges).to_dict(orient="records"),
         "decile_lift": decile_lift(y_holdout, p_holdout).to_dict(orient="records"),
         "top_features": importance.head(25).to_dict(orient="records"),
+        "baselines": baselines,
         "figures": plot_model_diagnostics(
             y_holdout, p_holdout, raw_scores["holdout"], holdout_curve, threshold, importance
-        ),
+        ) + [plot_baseline_comparison(baselines)],
     }
 
     # ---- persist ----
@@ -457,6 +576,9 @@ def _log_summary(metrics: dict) -> None:
                 fmt_pct(comparison["naive_0.5"]["saving_pct"]))
     logger.info("Saving vs approving everyone: %s",
                 fmt_money(comparison["approve_everyone"]["saving_vs_this"]))
+    for name, scores in metrics.get("baselines", {}).items():
+        logger.info("Baseline %-20s ROC-AUC %.4f | PR-AUC %.4f",
+                    name, scores["roc_auc"], scores["pr_auc"])
     logger.info("=" * 68)
 
 
