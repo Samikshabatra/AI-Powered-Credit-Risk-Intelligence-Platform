@@ -529,7 +529,7 @@ def slide_architecture(pdf) -> None:
     bullets(axis, [
         "docker compose up builds the warehouse, EDA, model, rules and fairness report "
         "on first start, then serves the UI. Verified cold-start: 85 seconds.",
-        "121 passing tests. Guardrails, semantic-layer SQL executed against the real "
+        "124 passing tests. Guardrails, semantic-layer SQL executed against the real "
         "database, preprocessing traps and reason-code compliance all covered.",
         "Every LLM feature has a deterministic twin — scoring, explanation, rules and "
         "EDA all run with no API key.",
