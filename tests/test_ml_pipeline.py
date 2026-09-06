@@ -267,3 +267,62 @@ def test_unknown_applicant_raises_a_helpful_error(scorer) -> None:
 
     with pytest.raises(KeyError, match="not in the holdout set"):
         get_applicant(-1)
+
+
+# --------------------------------------------------------------------------- #
+# Baseline benchmark
+# --------------------------------------------------------------------------- #
+def test_benchmark_baselines_scores_both_models_on_the_holdout() -> None:
+    """The comparison must run on NaN-bearing input and cover all three models."""
+    import pandas as pd
+
+    from src.ml.train import benchmark_baselines
+
+    rng = np.random.default_rng(7)
+    n = 800
+    signal = rng.normal(size=n)
+    y = pd.Series(rng.binomial(1, 1 / (1 + np.exp(-signal))))
+    features = pd.DataFrame({
+        "signal": signal,
+        "noise": rng.normal(size=n),
+        "coded_category": rng.integers(0, 5, n),
+    })
+    features.loc[features.sample(frac=0.1, random_state=1).index, "noise"] = np.nan
+
+    index = np.arange(n)
+    splits = {"train": index[:600], "holdout": index[600:]}
+    lightgbm_holdout = discrimination_metrics(y.iloc[splits["holdout"]].to_numpy(),
+                                              signal[splits["holdout"]])
+
+    baselines = benchmark_baselines(features, y, splits, lightgbm_holdout, seed=7)
+
+    assert set(baselines) == {"logistic_regression", "random_forest", "lightgbm"}
+    for scores in baselines.values():
+        assert {"roc_auc", "pr_auc", "ks_statistic", "gini"} <= set(scores)
+        assert 0.0 <= scores["roc_auc"] <= 1.0
+    # The signal is genuinely predictive, so a fitted baseline must beat a coin flip.
+    assert baselines["logistic_regression"]["roc_auc"] > 0.6
+    assert baselines["random_forest"]["roc_auc"] > 0.6
+    assert baselines["lightgbm"] == lightgbm_holdout
+
+
+@requires_model
+def test_published_baselines_show_lightgbm_ahead() -> None:
+    """The "versus what?" claim in the README, checked against the artifact."""
+    from src.utils.config import settings
+    from src.utils.helpers import load_json
+
+    metrics = load_json(settings.metrics_path)
+    if metrics is None or "baselines" not in metrics:
+        pytest.skip("No baseline benchmark in the metrics file.")
+    baselines = metrics["baselines"]
+
+    shipped = baselines["lightgbm"]
+    assert shipped == metrics["discrimination"]["holdout"], (
+        "The baseline block must quote the same holdout numbers as the headline."
+    )
+    for name in ("logistic_regression", "random_forest"):
+        assert shipped["roc_auc"] > baselines[name]["roc_auc"]
+        assert shipped["pr_auc"] > baselines[name]["pr_auc"]
+        # Same holdout, so the population must be identical.
+        assert baselines[name]["n"] == shipped["n"]
