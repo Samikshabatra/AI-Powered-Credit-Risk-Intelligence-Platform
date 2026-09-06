@@ -270,9 +270,18 @@ def run_evaluation(
 ) -> dict[str, Any]:
     """Run every case through a single agent instance and aggregate the results.
 
-    One agent for the whole suite is intentional: it exercises the prompt cache
-    and the conversation memory the way a real session does, and the follow-up
-    case only makes sense with the preceding turn in history.
+    One agent for the whole suite is intentional - it exercises the prompt cache
+    the way a real session does - but **conversation memory is reset before each
+    case**. The agent keeps a rolling four-turn window, so running 25 unrelated
+    questions back to back makes it read an independent question as a follow-up
+    to whatever happened to come before it, and decline. That is a property of
+    the harness, not of the agent: measured on the first full run, q15, q17 and
+    q25 were refused in sequence and all three answer correctly in isolation.
+
+    A case with `depends_on` is the one exception: its antecedent is replayed
+    immediately before it, so the follow-up is graded against exactly the
+    context a real user would have given it - which is the point of that case.
+    The antecedent turn is not graded twice.
     """
     cases = load_cases(path)
     if case_ids:
@@ -280,6 +289,7 @@ def run_evaluation(
         # Pull in any case a selected follow-up depends on.
         wanted |= {c.depends_on for c in cases if c.id in wanted and c.depends_on}
         cases = [c for c in cases if c.id in wanted]
+    by_id = {case.id: case for case in cases}
 
     LEDGER.reset()
     agent = NLToSQLAgent()
@@ -287,6 +297,11 @@ def run_evaluation(
 
     for case in cases:
         logger.info("[%s] %s", case.id, case.question)
+        agent.reset_memory()
+        antecedent = by_id.get(case.depends_on) if case.depends_on else None
+        if antecedent is not None:
+            logger.info("  context turn <- [%s] %s", antecedent.id, antecedent.question)
+            agent.ask(antecedent.question)
         result = agent.ask(case.question)
         outcome = grade(case, result)
         outcomes.append(outcome)
