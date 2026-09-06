@@ -1,0 +1,48 @@
+# =============================================================================
+# docker compose up
+#
+# One service: the SQLite warehouse is a file on the mounted volume, so there is
+# no database container to orchestrate. Adding one would be architecture theatre.
+#
+# The dataset is mounted, never baked into the image: the Home Credit CSVs are
+# ~2.3 GB and licensed by Kaggle, so shipping them inside a layer would be both
+# wasteful and wrong.
+# =============================================================================
+
+services:
+  credit-risk-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: credit-risk-platform:latest
+    container_name: credit-risk-platform
+    ports:
+      # Host port is overridable: 8501 is a popular default and is often already
+      # taken by another Streamlit project. `APP_PORT=8502 docker compose up`.
+      - "${APP_PORT:-8501}:8501"
+    env_file:
+      # Copy .env.example to .env before the first run. The app starts without
+      # it - only Talk-to-Data and the chat assistant need the API key.
+      - path: .env
+        required: false
+    environment:
+      RAW_DIR: /app/data/raw
+      PROCESSED_DIR: /app/data/processed
+      MODEL_DIR: /app/models
+      REPORT_DIR: /app/reports
+      SQLITE_PATH: /app/data/credit_risk.db
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      # Dataset in, artifacts out. Both survive `docker compose down`, so a
+      # rebuild does not retrain the model.
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # Generous: the first run trains the model before Streamlit binds.
+      start_period: 300s

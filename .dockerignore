@@ -1,0 +1,28 @@
+# Never ship the dataset or artifacts - both are mounted as volumes.
+data/
+models/
+reports/
+*.zip
+*.csv
+*.parquet
+*.db
+*.joblib
+
+# Local environment
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.git/
+.gitignore
+
+# Notebook outputs are 350 KB of embedded PNGs; the .py export is enough.
+notebooks/*.ipynb
+
+# Docs
+*.md
+!README.md
+documents/
