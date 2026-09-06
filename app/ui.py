@@ -307,6 +307,25 @@ _RULE_ABBREVIATIONS = {
 }
 
 
+def baseline_frame(baselines: dict) -> pd.DataFrame:
+    """Baseline benchmark block from model_metrics.json as a display table."""
+    labels = {
+        "logistic_regression": "Logistic regression",
+        "random_forest": "Random forest",
+        "lightgbm": "LightGBM (shipped)",
+    }
+    return pd.DataFrame([
+        {
+            "Model": labels.get(name, name),
+            "ROC-AUC": scores["roc_auc"],
+            "PR-AUC": scores["pr_auc"],
+            "KS": scores["ks_statistic"],
+            "Gini": scores["gini"],
+        }
+        for name, scores in baselines.items()
+    ])
+
+
 def _compact_rule(conditions: list[str]) -> str:
     text = " AND ".join(conditions)
     for long, short in _RULE_ABBREVIATIONS.items():
@@ -1376,8 +1395,9 @@ def page_performance() -> None:
     ]), **HTML)
     st.markdown("<div style='height:10px'></div>", **HTML)
 
-    tab_overview, tab_curves, tab_calib, tab_importance, tab_threshold = st.tabs(
-        ["Overview", "ROC & PR", "Calibration", "Feature importance",
+    (tab_overview, tab_baselines, tab_curves, tab_calib, tab_importance,
+     tab_threshold) = st.tabs(
+        ["Overview", "Baselines", "ROC & PR", "Calibration", "Feature importance",
          "Threshold analysis"])
 
     with tab_overview:
@@ -1423,6 +1443,50 @@ def page_performance() -> None:
                         "Mean predicted", format="percent"),
                     "population_share": st.column_config.NumberColumn(
                         "Population share", format="percent")})
+
+    with tab_baselines:
+        baselines = metrics.get("baselines")
+        if not baselines:
+            st.info("No baseline benchmark in `model_metrics.json`. Re-run "
+                    "`python -m src.ml.train` to generate one.")
+        else:
+            left, right = st.columns([1, 1], gap="medium")
+            with left:
+                with st.container(border=True):
+                    st.markdown(theme.CARD_MARK, **HTML)
+                    st.markdown('<div class="card-title" style="font-size:14px">'
+                                "Same holdout, same features, same seed</div>", **HTML)
+                    st.dataframe(
+                        baseline_frame(baselines), hide_index=True,
+                        use_container_width=True,
+                        column_config={
+                            "ROC-AUC": st.column_config.NumberColumn(format="%.4f"),
+                            "PR-AUC": st.column_config.NumberColumn(format="%.4f"),
+                            "KS": st.column_config.NumberColumn(format="%.4f"),
+                            "Gini": st.column_config.NumberColumn(format="%.4f")})
+                    st.caption(
+                        "Both baselines see a median-imputed copy of the same 143 "
+                        "features. Imputer and scaler are fitted on train only.")
+            with right:
+                with st.container(border=True):
+                    st.markdown(theme.CARD_MARK, **HTML)
+                    st.markdown('<div class="card-title" style="font-size:14px">'
+                                "Holdout ROC-AUC and PR-AUC</div>", **HTML)
+                    figure("ml_baseline_comparison.png")
+
+            shipped = baselines.get("lightgbm", {})
+            best_other = max(
+                (v["roc_auc"] for k, v in baselines.items() if k != "lightgbm"),
+                default=0.0)
+            st.markdown(theme.notice(
+                "<b>Why LightGBM ships.</b> It reads NaN and categorical codes "
+                "natively — the baselines need those imputed and treated as numbers "
+                "— and it captures the interactions a linear model cannot express. "
+                f"Its holdout ROC-AUC of {shipped.get('roc_auc', 0):.4f} beats the "
+                f"best baseline at {best_other:.4f}. The gap on PR-AUC matters more: "
+                "at an 8% base rate that is the metric that reflects the top of the "
+                "ranking, which is where the decision actually happens.",
+                kind="info", icon_name="about"), **HTML)
 
     with tab_curves:
         left, right = st.columns(2, gap="medium")
