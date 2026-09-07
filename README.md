@@ -1,8 +1,48 @@
-# AI-Powered Credit Risk Intelligence Platform
+<h1 align="center">AI-Powered Credit Risk Intelligence Platform</h1>
 
-**Not just a model — a credit *decision system*: scored, explained, defensible, auditable, and queryable in plain English.**
+<p align="center">
+  <b>Not just a model — a credit <i>decision system</i>:<br>
+  scored, explained, defensible, auditable, and queryable in plain English.</b>
+</p>
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%20%E2%80%93%203.13-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-1.40-FF4B4B?style=flat-square&logo=streamlit&logoColor=white">
+  <img alt="LightGBM" src="https://img.shields.io/badge/LightGBM-4.7-02569B?style=flat-square">
+  <img alt="Claude" src="https://img.shields.io/badge/Claude-Sonnet%20%2B%20Haiku-D97757?style=flat-square&logo=anthropic&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-compose-2496ED?style=flat-square&logo=docker&logoColor=white">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-141%20passing-16a34a?style=flat-square">
+</p>
+
+<p align="center">
+  <b>▶ Live demo:</b> <i>deploying to Streamlit Community Cloud — link here shortly</i>
+  <!-- Replace the line above with: <a href="https://YOUR-APP.streamlit.app">YOUR-APP.streamlit.app</a> -->
+</p>
+
+---
 
 An explainable, agentic credit-risk platform built on the [Home Credit Default Risk](https://www.kaggle.com/competitions/home-credit-default-risk/data) dataset (307,511 applications). It spans the full stack a bank would actually need: data engineering → EDA → calibrated ML → cost-optimised decisioning → SHAP explanations → adverse-action reason codes → derived credit policy → a self-correcting natural-language SQL interface → an orchestrator agent → a Streamlit UI → Docker.
+
+**Three things make it a decision system rather than a notebook:**
+
+| | |
+|---|---|
+| 🎯 **The threshold is chosen, not assumed** | 0.50 is a coin-flip dressed as a policy. The cut-off here minimises expected loss against per-applicant exposure — LGD 45%, margin 8% — and is picked on a split used for nothing else. That single change is worth **$221M** on the holdout portfolio. |
+| 🧾 **Every decline can be explained to the applicant** | SHAP attribution is turned into ranked, ECOA-shaped principal reasons, with protected attributes excluded from the rule language and any suppression reported rather than hidden. |
+| 🛡️ **The AI is bounded by mechanism, not manners** | Generated SQL passes a statement allowlist, a keyword denylist, a table allowlist and a read-only connection. A prompt-injected question fails on all four — measured across 25 labelled cases, injection attempt included. |
+
+**Every LLM feature has a deterministic twin.** Scoring, explanation, policy rules, EDA and fairness all run with no API key. Only the chat assistant needs one, and it degrades to a labelled cached answer rather than an error.
+
+## Contents
+
+- [Headline results](#headline-results)
+- [Quick start](#quick-start) — [Docker](#docker-what-an-evaluator-should-run) · [Local](#local) · [Streamlit Cloud](#streamlit-community-cloud) · [Without an API key](#without-an-api-key)
+- [Architecture](#architecture) · [The Decision Trace](#the-decision-trace)
+- [Module walkthrough](#module-walkthrough) — EDA, ML, explainability, rules, NL→SQL, agent, UI, fairness
+- [Token optimisation, measured](#token-optimisation-measured)
+- [Model & stack choices](#model--stack-choices)
+- [Testing](#testing) · [Repository layout](#repository-layout) · [Configuration](#configuration)
+- [Known limitations](#known-limitations)
 
 ---
 
@@ -17,7 +57,7 @@ An explainable, agentic credit-risk platform built on the [Home Credit Default R
 | **Policy** | **14 IF-THEN rules**, top rule at **3.50× lift** on 5.1% of applicants | Depth-4 surrogate, 81.2% fidelity to the model |
 | **Governance** | Approval-rate gap **10.7pp** by gender, **30.5pp** by age band | Measured and published, not silently absorbed |
 | **NL→SQL** | **19/21** answerable questions correct, **4/4** refusals and the injection attempt caught, 0 retries, 85.2% input-token saving (73.2% cold-start) | Live 25-case run, `eval_harness` |
-| **Tests** | **124 passing** | `pytest tests/` |
+| **Tests** | **141 passing** | `pytest tests/` |
 
 Rebuild every number: `python -m src.ml.train` writes `reports/model_metrics.json`.
 
@@ -28,7 +68,8 @@ Rebuild every number: `python -m src.ml.train` writes `reports/model_metrics.jso
 ### Docker (what an evaluator should run)
 
 ```bash
-git clone <repo-url> && cd credit_risk_platform
+git clone https://github.com/Samikshabatra/AI-Powered-Credit-Risk-Intelligence-Platform.git
+cd AI-Powered-Credit-Risk-Intelligence-Platform
 cp .env.example .env                 # optional: add ANTHROPIC_API_KEY for the LLM features
 
 # Download the dataset from Kaggle and unzip these four files into ./data/raw/
@@ -137,7 +178,7 @@ Everything except the chat assistant and NL→SQL runs offline: EDA, scoring, th
                         AI tool-use over all six tools
                                |
                           app/ui.py
-                 7 sections, Decision Trace hero
+                 9 sections, Decision Trace hero
 ```
 
 ### The Decision Trace
@@ -433,7 +474,7 @@ The tests worth reading are the compliance-shaped ones: a protected attribute ne
 
 ```
 ├── app/
-│   ├── ui.py                       Streamlit UI, 8 sections
+│   ├── ui.py                       Streamlit UI, 9 sections
 │   ├── theme.py                    design system: tokens, CSS, HTML components
 │   └── charts.py                   Altair chart builders
 ├── notebooks/eda.ipynb + eda.py    EDA, executed with outputs
@@ -449,7 +490,10 @@ The tests worth reading are the compliance-shaped ones: a protected attribute ne
 │   └── utils/      config, logger, helpers, llm, docker_utils
 ├── sql/schema.sql                  DDL — also the NL→SQL grounding block
 ├── evaluation/nl_sql_questions.jsonl   25 labelled cases
-├── tests/                          124 tests
+├── scripts/prepare_streamlit_artifacts.py   builds the committed demo sample
+├── deploy_artifacts/               11.7 MB anonymised sample: the Streamlit Cloud build
+├── packages.txt                    apt deps for Streamlit Cloud (libgomp1)
+├── tests/                          141 tests
 ├── documents/
 │   ├── project_presentation.pdf    14-slide deck, generated from reports/
 │   └── build_presentation.py       the generator — no hardcoded numbers
@@ -458,7 +502,7 @@ The tests worth reading are the compliance-shaped ones: a protected attribute ne
 └── docker-compose.yml
 ```
 
-`data/`, `models/` and `reports/figures/` are gitignored — the dataset is mounted at runtime, never committed.
+`data/`, `models/` and `reports/` are gitignored — the dataset is mounted at runtime, never committed. The one exception is `deploy_artifacts/`, a small anonymised sample built by `scripts/prepare_streamlit_artifacts.py` so the public Streamlit build has something to read; see [Streamlit Community Cloud](#streamlit-community-cloud).
 
 ---
 
