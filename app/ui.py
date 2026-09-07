@@ -26,13 +26,44 @@ Two rules run through the whole app:
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 import streamlit as st
 
+# `set_page_config` has to be the first Streamlit call in the script, before the
+# secrets read below - Streamlit's own test runner rejects the other order.
+st.set_page_config(
+    page_title="CreditRisk IQ",
+    page_icon="::",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# --------------------------------------------------------------------------- #
+# Secrets -> environment. This must run before anything imports settings.
+#
+# Streamlit Cloud has no `.env` file: ANTHROPIC_API_KEY, DEMO_MODE and
+# STREAMLIT_CLOUD are set in the Secrets box, which surfaces them on `st.secrets`
+# and nowhere else. pydantic-settings reads `os.environ`, so the two are bridged
+# here. `setdefault`, not assignment: a real environment variable set by the
+# operator still wins. Guarded, because `st.secrets` raises when no secrets file
+# exists, which is the normal case for a local run.
+# --------------------------------------------------------------------------- #
+try:
+    for _key, _value in st.secrets.items():
+        if isinstance(_value, (str, int, float, bool)):
+            os.environ.setdefault(_key, str(_value))
+except Exception:  # no secrets.toml, or the runtime does not provide one
+    pass
+
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+
+# `streamlit run app/ui.py` from the repo root puts `app/` on sys.path, not the
+# root, so `src` would not import. The Docker image set PYTHONPATH=/app instead;
+# this line is what makes the same app run on a host that cannot.
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -42,13 +73,10 @@ from app.theme import badge, icon  # noqa: E402
 from src.utils.config import settings  # noqa: E402
 from src.utils.docker_utils import artifact_status, missing_data_message  # noqa: E402
 from src.utils.helpers import fmt_money, fmt_pct, load_json  # noqa: E402
+from src.utils.logger import get_logger  # noqa: E402
 
-st.set_page_config(
-    page_title="CreditRisk IQ",
-    page_icon="::",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+logger = get_logger(__name__)
+
 st.markdown(theme.stylesheet(), unsafe_allow_html=True)
 
 HTML = dict(unsafe_allow_html=True)
@@ -117,8 +145,14 @@ def _explainer():
     return get_explainer()
 
 
-@st.cache_data(show_spinner="Loading the holdout population...")
 def _holdout() -> pd.DataFrame:
+    """The scored holdout population.
+
+    Deliberately *not* wrapped in `st.cache_data`: that would keep a pickled copy
+    beside the one `load_holdout()` already holds behind its own `lru_cache`, and
+    hand out a fresh deep copy on every call. One frame, one copy - which is what
+    keeps the deployed app inside its memory budget.
+    """
     from src.ml.predict import load_holdout
 
     return load_holdout()
@@ -195,29 +229,63 @@ def figure(name: str | None, caption: str | None = None) -> None:
         st.info(f"Figure `{name}` has not been generated yet.")
 
 
+ARTIFACT_LABELS = {
+    "database": "the SQL warehouse",
+    "model": "the trained model",
+    "holdout": "the scored holdout population",
+    "rules": "the derived policy rules",
+    "eda": "the exploratory analysis",
+}
+
+ARTIFACT_COMMANDS = {
+    "database": "python -m src.data.build_database",
+    "model": "python -m src.ml.train",
+    "holdout": "python -m src.ml.train",
+    "rules": "python -m src.rules.rule_extractor",
+    "eda": "python -m src.data.eda_insights",
+}
+
+
+def status_card(title: str, body: str, kind: str = "warn") -> None:
+    """The one empty state in the app. A page that cannot render says why, here."""
+    with theme.card(title):
+        st.markdown(theme.notice(body, kind=kind, icon_name="about"), **HTML)
+
+
 def require(*keys: str) -> bool:
-    """Guard a page on the artifacts it needs, naming the command that builds them."""
+    """Guard a page on the artifacts it needs.
+
+    Never lets a missing file reach the user as a traceback. Locally it names the
+    command that builds the artifact; on the deployed sample there is no such
+    command, so it says the build did not publish it instead of printing an
+    instruction nobody on that host can run.
+    """
     status = artifact_status()
-    commands = {
-        "database": "python -m src.data.build_database",
-        "model": "python -m src.ml.train",
-        "holdout": "python -m src.ml.train",
-        "rules": "python -m src.rules.rule_extractor",
-        "eda": "python -m src.data.eda_insights",
-    }
-    if "eda" in keys and _eda() is None:
-        st.warning("The exploratory analysis has not been run yet.")
-        st.code(commands["eda"], language="bash")
-        return False
     missing = [k for k in keys if k in status and not status[k]]
+    if "eda" in keys and _eda() is None:
+        missing.append("eda")
     if not missing:
         return True
-    if not status.get("raw_data"):
-        st.warning(missing_data_message())
+
+    names = ", ".join(ARTIFACT_LABELS.get(key, key) for key in dict.fromkeys(missing))
+    if settings.streamlit_cloud:
+        status_card(
+            "Not available in this build",
+            f"This section needs {names}, which the published demo build did not "
+            "include. Every other section is unaffected - use the left rail to "
+            "carry on.")
         return False
-    st.warning("This section needs artifacts that have not been built yet.")
-    for key in missing:
-        st.code(commands[key], language="bash")
+
+    if not status.get("raw_data") and not any(status.values()):
+        status_card("The dataset has not been downloaded yet", missing_data_message())
+        return False
+
+    status_card(
+        "Not built yet",
+        f"This section needs {names}. Build it with the command below, then "
+        "reload the page.")
+    for key in dict.fromkeys(missing):
+        st.code(ARTIFACT_COMMANDS[key], language="bash")
     return False
 
 
@@ -247,8 +315,16 @@ def sidebar() -> str:
 
         st.markdown("<div style='height:12px'></div>", **HTML)
         status = artifact_status()
+        # On the public build there is no Kaggle download to report on: the data
+        # that exists is the anonymised sample inside the warehouse. Saying "raw
+        # dataset: missing" there would be true of a file nobody expected to find.
+        dataset_row = (
+            ("Sampled dataset", status.get("database"))
+            if settings.streamlit_cloud
+            else ("Raw dataset", status.get("raw_data"))
+        )
         rows = [
-            ("Raw dataset", status.get("raw_data")),
+            dataset_row,
             ("SQL warehouse", status.get("database")),
             ("Trained model", status.get("model")),
             ("Policy rules", status.get("rules")),
@@ -270,9 +346,16 @@ def sidebar() -> str:
         )
         if not llm_available():
             st.caption(
+                "Without an API key the assistant replays recorded evaluation "
+                "queries. Every other section runs offline either way."
+                if settings.demo_mode else
                 "Without an API key, Talk to Data and the assistant are disabled. "
                 "Every other section runs offline."
             )
+        if settings.streamlit_cloud:
+            st.caption(
+                "Public demo: an anonymised sample of the portfolio, rebuilt end "
+                "to end. Applicant ids are synthetic.")
     return page
 
 
@@ -520,7 +603,9 @@ def page_home() -> None:
         ("applicants", f"{profile.get('n_rows', 0):,}", "Loan applications analysed"),
         ("rate", fmt_pct(target.get("default_rate", 0), 2), "Portfolio default rate"),
         ("auc", f"{holdout_metrics.get('roc_auc', 0):.3f}",
-         "Holdout ROC-AUC (on 61,503 unseen applicants)"),
+         "Holdout ROC-AUC (on "
+         f"{(metrics or {}).get('split_sizes', {}).get('holdout', 0):,} "
+         "unseen applicants)"),
     ]), **HTML)
     st.markdown("<div style='height:12px'></div>", **HTML)
 
@@ -867,6 +952,42 @@ def page_predict() -> None:
 # --------------------------------------------------------------------------- #
 # 3. Talk to Data
 # --------------------------------------------------------------------------- #
+DEMO_CALL_COUNT = "_demo_llm_calls"
+
+
+def _assistant_is_live() -> bool:
+    """Whether this turn may spend a real model call.
+
+    DEMO_MODE exists because the deployed app is public and the key behind it is
+    not. A per-session ceiling means one visitor cannot drain it, and the page
+    still answers after the ceiling is reached - from the cache - instead of
+    going blank, which is the failure mode a rate limit usually produces.
+    """
+    from src.utils.llm import llm_available
+
+    if not llm_available():
+        return False
+    if not settings.demo_mode:
+        return True
+    return st.session_state.get(DEMO_CALL_COUNT, 0) < settings.demo_llm_call_budget
+
+
+def _cached_suggestions(limit: int = 4) -> list[str]:
+    from src.talk_to_data.demo_fallback import cached_questions
+
+    return cached_questions()[:limit]
+
+
+def _cached_label(cached) -> str:
+    """Never let a replayed answer read as a live one."""
+    if not cached.matched:
+        return "Cached demo output \u2014 no recorded answer matched this question."
+    return (
+        "Cached demo output \u2014 SQL replayed from the recorded evaluation run "
+        "(" + str(cached.case_id) + ": " + str(cached.matched_question) + ")"
+    )
+
+
 def _sql_evidence(turn) -> dict:
     """The SQL and rows behind an answer, if the agent reached the warehouse.
 
@@ -1086,13 +1207,15 @@ def page_talk() -> None:
         return
 
     from src.talk_to_data.semantic_layer import render_markdown
-    from src.utils.llm import LEDGER, llm_available
+    from src.utils.llm import LEDGER
 
     tab_ask, tab_semantic, tab_guard, tab_eval = st.tabs(
         ["Assistant", "Semantic layer", "Guardrails", "Evaluation"])
 
     with tab_ask:
-        if not llm_available():
+        live = _assistant_is_live()
+
+        if not live and not settings.demo_mode:
             st.markdown(theme.notice(
                 "The AI assistant needs an API key. Copy "
                 "<code>.env.example</code> to <code>.env</code>, set "
@@ -1104,22 +1227,44 @@ def page_talk() -> None:
             if "chat" not in st.session_state:
                 st.session_state.chat = []
 
+            if not live:
+                spent = st.session_state.get(DEMO_CALL_COUNT, 0)
+                reason = (
+                    f"this session has used its {settings.demo_llm_call_budget} "
+                    "model calls"
+                    if spent >= settings.demo_llm_call_budget
+                    else "no API key is configured on this deployment"
+                )
+                st.markdown(theme.notice(
+                    f"<b>Cached demo output.</b> The assistant is not calling the "
+                    f"model — {reason}. Questions are matched against the 25 "
+                    "labelled evaluation cases and the SQL recorded for them is "
+                    "replayed against this database, so the numbers below are "
+                    "computed now, not frozen. What you do not see is the routing "
+                    "and the self-correction, which only a live call can show.",
+                    kind="info", icon_name="about"), **HTML)
+
             # Suggested questions are buttons, not decorative chips: clicking one
-            # asks it. This is the fastest way to see the agent work.
-            st.caption("Try one of these, or type your own below:")
-            suggestion_columns = st.columns(2)
-            for index, suggestion in enumerate(SUGGESTED_QUESTIONS):
-                if suggestion_columns[index % 2].button(
-                    suggestion, use_container_width=True, key=f"chip{index}"
-                ):
-                    st.session_state[PENDING_QUESTION] = suggestion
-                    st.rerun()
+            # asks it. This is the fastest way to see the agent work - and when the
+            # cache is answering, the offered questions are ones it can answer.
+            suggestions = SUGGESTED_QUESTIONS if live else _cached_suggestions()
+            if suggestions:
+                st.caption("Try one of these, or type your own below:")
+                suggestion_columns = st.columns(2)
+                for index, suggestion in enumerate(suggestions):
+                    if suggestion_columns[index % 2].button(
+                        suggestion, use_container_width=True, key=f"chip{index}"
+                    ):
+                        st.session_state[PENDING_QUESTION] = suggestion
+                        st.rerun()
 
             for message in st.session_state.chat:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
                     if message.get("tools"):
                         st.caption("Routed to: " + ", ".join(message["tools"]))
+                    if message.get("cached"):
+                        st.caption(message["cached"])
                     _render_sql_evidence(message)
 
             typed = st.chat_input(
@@ -1131,25 +1276,38 @@ def page_talk() -> None:
                 with st.chat_message("user"):
                     st.markdown(question)
                 with st.chat_message("assistant"):
-                    with st.spinner("Routing..."):
-                        from src.agent.orchestrator import chat_safely
+                    if live:
+                        with st.spinner("Routing..."):
+                            from src.agent.orchestrator import chat_safely
 
-                        turn = chat_safely(question)
-                    st.markdown(turn.answer)
-                    if turn.tool_names:
-                        st.caption("Routed to: " + ", ".join(turn.tool_names))
-                    evidence = _sql_evidence(turn)
-                    _render_sql_evidence(evidence)
-                st.session_state.chat.append({
-                    "role": "assistant", "content": turn.answer,
-                    "tools": turn.tool_names, **evidence})
+                            st.session_state[DEMO_CALL_COUNT] = (
+                                st.session_state.get(DEMO_CALL_COUNT, 0) + 1)
+                            turn = chat_safely(question)
+                        st.markdown(turn.answer)
+                        if turn.tool_names:
+                            st.caption("Routed to: " + ", ".join(turn.tool_names))
+                        evidence = _sql_evidence(turn)
+                        _render_sql_evidence(evidence)
+                        record = {"role": "assistant", "content": turn.answer,
+                                  "tools": turn.tool_names, **evidence}
+                    else:
+                        from src.talk_to_data.demo_fallback import demo_answer
+
+                        cached = demo_answer(question)
+                        st.markdown(cached.answer)
+                        label = _cached_label(cached)
+                        st.caption(label)
+                        _render_sql_evidence(cached.as_message())
+                        record = cached.as_message() | {"cached": label}
+                st.session_state.chat.append(record)
 
             controls = st.columns([1, 3])
             if st.session_state.chat and controls[0].button("Clear conversation"):
-                from src.agent.orchestrator import get_orchestrator
-
                 st.session_state.chat = []
-                get_orchestrator(reset=True)
+                if live:
+                    from src.agent.orchestrator import get_orchestrator
+
+                    get_orchestrator(reset=True)
                 st.rerun()
 
             ledger = LEDGER.summary()
@@ -1159,6 +1317,10 @@ def page_talk() -> None:
                     f"{ledger['input_tokens']:,} input tokens · "
                     f"{ledger['cache_read_tokens']:,} served from cache "
                     f"({ledger['input_token_saving_pct']:.0%} input saving)")
+            elif settings.demo_mode and live:
+                controls[1].caption(
+                    f"Demo mode: {settings.demo_llm_call_budget} model calls per "
+                    "session, then cached answers.")
 
     with tab_semantic:
         st.markdown(
@@ -1227,6 +1389,11 @@ def page_talk() -> None:
                 "invalidate the labels.")
         else:
             headline = report["headline"]
+            if settings.streamlit_cloud:
+                st.caption(
+                    "These figures were measured against the full 307,511-row "
+                    "warehouse. The public demo ships an anonymised sample, so the "
+                    "replayed queries return the sample's numbers, not these.")
 
             def shown(value) -> str:
                 return "n/a" if value is None else fmt_pct(value)
@@ -1965,7 +2132,17 @@ PAGES = {
 def main() -> None:
     page = sidebar()
     st.markdown(theme.topbar(page, PAGE_SUBTITLES.get(page, "")), **HTML)
-    PAGES[page]()
+    try:
+        PAGES[page]()
+    except Exception as exc:
+        # `require()` covers the artifacts a page declares. This covers everything
+        # else - a corrupt joblib, a schema that moved - so a public visitor gets
+        # a card naming the failure instead of a Streamlit traceback.
+        logger.exception("Page %s failed", page)
+        status_card(
+            "This section could not be rendered",
+            f"{type(exc).__name__}: {exc}<br><br>The rest of the platform is "
+            "unaffected - pick another section from the left rail.")
 
 
 if __name__ == "__main__":

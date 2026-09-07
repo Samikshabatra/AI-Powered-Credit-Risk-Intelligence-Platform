@@ -42,7 +42,15 @@ from src.xai.reason_codes import PROTECTED_ATTRIBUTES
 logger = get_logger(__name__)
 
 MAX_DEPTH = 4
-MIN_SAMPLES_LEAF = 2000     # ~1% of the surrogate training pool: no micro-rules
+# Minimum leaf size, as a share of the population the surrogate is fitted on
+# rather than a flat count. A rule covering a handful of applicants is not a
+# policy, so the floor is real - but a flat 2000 silently produced a *single*
+# leaf on a 3,600-row population (fidelity 18.7%, one vacuous rule at 100%
+# support), because no split could leave 2000 rows on both sides. Scaling keeps
+# the full 60,000-row run identical (60000/30 = 2000) and keeps a smaller
+# population, such as the deployment sample, producing real rules.
+MIN_SAMPLES_LEAF_FRACTION = 1 / 30
+MIN_SAMPLES_LEAF_FLOOR = 50
 N_CANDIDATE_FEATURES = 14
 
 # Features whose *units* a policy reader understands without a data dictionary.
@@ -146,6 +154,12 @@ def select_rule_features(scorer: RiskScorer, n: int = N_CANDIDATE_FEATURES) -> l
 # --------------------------------------------------------------------------- #
 # Surrogate
 # --------------------------------------------------------------------------- #
+def min_samples_leaf(population_size: int) -> int:
+    """Leaf-size floor for a population of `population_size` rows."""
+    return max(MIN_SAMPLES_LEAF_FLOOR,
+               int(round(population_size * MIN_SAMPLES_LEAF_FRACTION)))
+
+
 def fit_surrogate(
     features: pd.DataFrame, model_decisions: np.ndarray, seed: int
 ) -> tuple[DecisionTreeClassifier, float]:
@@ -156,7 +170,7 @@ def fit_surrogate(
 
     tree = DecisionTreeClassifier(
         max_depth=MAX_DEPTH,
-        min_samples_leaf=MIN_SAMPLES_LEAF,
+        min_samples_leaf=min_samples_leaf(len(filled)),
         class_weight="balanced",
         random_state=seed,
     )

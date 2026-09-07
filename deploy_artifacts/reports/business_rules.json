@@ -1,0 +1,359 @@
+{
+  "generated_from": "depth-4 decision-tree surrogate of the LightGBM policy",
+  "surrogate_fidelity": 0.8431,
+  "population": 3600,
+  "population_source": "holdout",
+  "base_default_rate": 0.0808,
+  "decision_threshold": 0.0743,
+  "risk_band_edges": {
+    "low_max": 0.0372,
+    "high_min": 0.0743
+  },
+  "rule_features": [
+    "EXT_SOURCE_MEAN",
+    "EXT_SOURCE_MIN",
+    "EXT_SOURCE_3",
+    "GOODS_CREDIT_RATIO",
+    "PREV_CREDIT_TO_APPLICATION",
+    "CREDIT_TERM",
+    "EXT_SOURCE_MAX",
+    "PREV_AMT_CREDIT_MAX",
+    "EXT_SOURCE_STD",
+    "OWN_CAR_AGE",
+    "EXT_SOURCE_1",
+    "BUREAU_CREDIT_MEAN",
+    "BUREAU_DEBT_CREDIT_RATIO",
+    "PREV_CNT_PAYMENT_MEAN"
+  ],
+  "excluded_from_rule_language": {
+    "protected_attributes": [
+      "AGE_YEARS",
+      "CODE_GENDER",
+      "DAYS_BIRTH",
+      "NAME_FAMILY_STATUS"
+    ],
+    "reason": "Rules may be applied manually to a real applicant, so the rule language excludes attributes a lender must not decide on."
+  },
+  "n_rules": 15,
+  "rules": [
+    {
+      "rule_id": 1,
+      "rule": "IF Average external credit score <= 0.28 AND Weakest external credit score <= 0.14 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score <= 0.28",
+        "Weakest external credit score <= 0.14"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN <= 0.2820",
+        "EXT_SOURCE_MIN <= 0.1394"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 162,
+      "support": 0.045,
+      "precision": 0.2963,
+      "lift": 3.666,
+      "model_decline_rate": 0.9815
+    },
+    {
+      "rule_id": 2,
+      "rule": "IF Average external credit score > 0.28 AND Average external credit score <= 0.37 AND Down-payment coverage <= 0.89 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.28",
+        "Average external credit score <= 0.37",
+        "Down-payment coverage <= 0.89"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.2820",
+        "EXT_SOURCE_MEAN <= 0.3696",
+        "GOODS_CREDIT_RATIO <= 0.8938"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 173,
+      "support": 0.0481,
+      "precision": 0.1908,
+      "lift": 2.36,
+      "model_decline_rate": 0.7052
+    },
+    {
+      "rule_id": 3,
+      "rule": "IF Average external credit score <= 0.28 AND Weakest external credit score > 0.14 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score <= 0.28",
+        "Weakest external credit score > 0.14"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN <= 0.2820",
+        "EXT_SOURCE_MIN > 0.1394"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 120,
+      "support": 0.0333,
+      "precision": 0.1667,
+      "lift": 2.062,
+      "model_decline_rate": 0.8083
+    },
+    {
+      "rule_id": 4,
+      "rule": "IF Average external credit score > 0.44 AND Average external credit score <= 0.57 AND Down-payment coverage <= 0.86 AND Implied repayment term > 23.61 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.44",
+        "Average external credit score <= 0.57",
+        "Down-payment coverage <= 0.86",
+        "Implied repayment term > 23.61"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.4387",
+        "EXT_SOURCE_MEAN <= 0.5690",
+        "GOODS_CREDIT_RATIO <= 0.8633",
+        "CREDIT_TERM > 23.6111"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 147,
+      "support": 0.0408,
+      "precision": 0.1224,
+      "lift": 1.515,
+      "model_decline_rate": 0.068
+    },
+    {
+      "rule_id": 5,
+      "rule": "IF Average external credit score > 0.37 AND Average external credit score <= 0.44 AND Weakest external credit score > 0.19 AND Implied repayment term <= 19.53 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.37",
+        "Average external credit score <= 0.44",
+        "Weakest external credit score > 0.19",
+        "Implied repayment term <= 19.53"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.3696",
+        "EXT_SOURCE_MEAN <= 0.4387",
+        "EXT_SOURCE_MIN > 0.1913",
+        "CREDIT_TERM <= 19.5318"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 133,
+      "support": 0.0369,
+      "precision": 0.1203,
+      "lift": 1.488,
+      "model_decline_rate": 0.3158
+    },
+    {
+      "rule_id": 6,
+      "rule": "IF Average external credit score > 0.37 AND Average external credit score <= 0.44 AND Weakest external credit score > 0.19 AND Implied repayment term > 19.53 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.37",
+        "Average external credit score <= 0.44",
+        "Weakest external credit score > 0.19",
+        "Implied repayment term > 19.53"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.3696",
+        "EXT_SOURCE_MEAN <= 0.4387",
+        "EXT_SOURCE_MIN > 0.1913",
+        "CREDIT_TERM > 19.5318"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 183,
+      "support": 0.0508,
+      "precision": 0.1202,
+      "lift": 1.487,
+      "model_decline_rate": 0.1202
+    },
+    {
+      "rule_id": 7,
+      "rule": "IF Average external credit score > 0.28 AND Average external credit score <= 0.37 AND Down-payment coverage > 0.89 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.28",
+        "Average external credit score <= 0.37",
+        "Down-payment coverage > 0.89"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.2820",
+        "EXT_SOURCE_MEAN <= 0.3696",
+        "GOODS_CREDIT_RATIO > 0.8938"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 160,
+      "support": 0.0444,
+      "precision": 0.1125,
+      "lift": 1.392,
+      "model_decline_rate": 0.4188
+    },
+    {
+      "rule_id": 8,
+      "rule": "IF Average external credit score > 0.37 AND Average external credit score <= 0.44 AND Weakest external credit score <= 0.19 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.37",
+        "Average external credit score <= 0.44",
+        "Weakest external credit score <= 0.19"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.3696",
+        "EXT_SOURCE_MEAN <= 0.4387",
+        "EXT_SOURCE_MIN <= 0.1913"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 125,
+      "support": 0.0347,
+      "precision": 0.112,
+      "lift": 1.386,
+      "model_decline_rate": 0.528
+    },
+    {
+      "rule_id": 9,
+      "rule": "IF Average external credit score > 0.44 AND Average external credit score <= 0.46 AND Down-payment coverage > 0.86 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.44",
+        "Average external credit score <= 0.46",
+        "Down-payment coverage > 0.86"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.4387",
+        "EXT_SOURCE_MEAN <= 0.4598",
+        "GOODS_CREDIT_RATIO > 0.8633"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 120,
+      "support": 0.0333,
+      "precision": 0.1083,
+      "lift": 1.34,
+      "model_decline_rate": 0.1083
+    },
+    {
+      "rule_id": 10,
+      "rule": "IF Average external credit score > 0.44 AND Average external credit score <= 0.57 AND Down-payment coverage <= 0.86 AND Implied repayment term <= 23.61 THEN DECLINE - refer to senior underwriting for override",
+      "conditions": [
+        "Average external credit score > 0.44",
+        "Average external credit score <= 0.57",
+        "Down-payment coverage <= 0.86",
+        "Implied repayment term <= 23.61"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.4387",
+        "EXT_SOURCE_MEAN <= 0.5690",
+        "GOODS_CREDIT_RATIO <= 0.8633",
+        "CREDIT_TERM <= 23.6111"
+      ],
+      "action": "DECLINE - refer to senior underwriting for override",
+      "risk_band": "High",
+      "applicants": 210,
+      "support": 0.0583,
+      "precision": 0.1,
+      "lift": 1.237,
+      "model_decline_rate": 0.2048
+    },
+    {
+      "rule_id": 11,
+      "rule": "IF Average external credit score > 0.46 AND Average external credit score <= 0.57 AND Down-payment coverage > 0.86 THEN REFER - manual review, verify income, consider risk pricing",
+      "conditions": [
+        "Average external credit score > 0.46",
+        "Average external credit score <= 0.57",
+        "Down-payment coverage > 0.86"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.4598",
+        "EXT_SOURCE_MEAN <= 0.5690",
+        "GOODS_CREDIT_RATIO > 0.8633"
+      ],
+      "action": "REFER - manual review, verify income, consider risk pricing",
+      "risk_band": "Medium",
+      "applicants": 680,
+      "support": 0.1889,
+      "precision": 0.0441,
+      "lift": 0.546,
+      "model_decline_rate": 0.0294
+    },
+    {
+      "rule_id": 12,
+      "rule": "IF Average external credit score > 0.57 AND Strongest external credit score <= 0.67 AND Previously granted vs requested > 1.09 THEN APPROVE - straight-through, eligible for pre-approved limit increase",
+      "conditions": [
+        "Average external credit score > 0.57",
+        "Strongest external credit score <= 0.67",
+        "Previously granted vs requested > 1.09"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.5690",
+        "EXT_SOURCE_MAX <= 0.6744",
+        "PREV_CREDIT_TO_APPLICATION > 1.0858"
+      ],
+      "action": "APPROVE - straight-through, eligible for pre-approved limit increase",
+      "risk_band": "Low",
+      "applicants": 120,
+      "support": 0.0333,
+      "precision": 0.0333,
+      "lift": 0.412,
+      "model_decline_rate": 0.0667
+    },
+    {
+      "rule_id": 13,
+      "rule": "IF Average external credit score > 0.57 AND Strongest external credit score <= 0.67 AND Previously granted vs requested <= 1.09 THEN APPROVE - straight-through, eligible for pre-approved limit increase",
+      "conditions": [
+        "Average external credit score > 0.57",
+        "Strongest external credit score <= 0.67",
+        "Previously granted vs requested <= 1.09"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.5690",
+        "EXT_SOURCE_MAX <= 0.6744",
+        "PREV_CREDIT_TO_APPLICATION <= 1.0858"
+      ],
+      "action": "APPROVE - straight-through, eligible for pre-approved limit increase",
+      "risk_band": "Low",
+      "applicants": 229,
+      "support": 0.0636,
+      "precision": 0.0306,
+      "lift": 0.378,
+      "model_decline_rate": 0.0087
+    },
+    {
+      "rule_id": 14,
+      "rule": "IF Average external credit score > 0.57 AND Strongest external credit score > 0.67 AND External credit score 3 > 0.51 THEN APPROVE - straight-through, eligible for pre-approved limit increase",
+      "conditions": [
+        "Average external credit score > 0.57",
+        "Strongest external credit score > 0.67",
+        "External credit score 3 > 0.51"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.5690",
+        "EXT_SOURCE_MAX > 0.6744",
+        "EXT_SOURCE_3 > 0.5146"
+      ],
+      "action": "APPROVE - straight-through, eligible for pre-approved limit increase",
+      "risk_band": "Low",
+      "applicants": 901,
+      "support": 0.2503,
+      "precision": 0.0289,
+      "lift": 0.357,
+      "model_decline_rate": 0.0011
+    },
+    {
+      "rule_id": 15,
+      "rule": "IF Average external credit score > 0.57 AND Strongest external credit score > 0.67 AND External credit score 3 <= 0.51 THEN APPROVE - straight-through, eligible for pre-approved limit increase",
+      "conditions": [
+        "Average external credit score > 0.57",
+        "Strongest external credit score > 0.67",
+        "External credit score 3 <= 0.51"
+      ],
+      "conditions_technical": [
+        "EXT_SOURCE_MEAN > 0.5690",
+        "EXT_SOURCE_MAX > 0.6744",
+        "EXT_SOURCE_3 <= 0.5146"
+      ],
+      "action": "APPROVE - straight-through, eligible for pre-approved limit increase",
+      "risk_band": "Low",
+      "applicants": 137,
+      "support": 0.0381,
+      "precision": 0.0073,
+      "lift": 0.09,
+      "model_decline_rate": 0.0146
+    }
+  ]
+}

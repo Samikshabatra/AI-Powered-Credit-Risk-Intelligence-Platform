@@ -1,0 +1,369 @@
+{
+  "profile": {
+    "n_rows": 18000,
+    "n_columns": 155,
+    "memory_mb": 37.3,
+    "dtypes": {
+      "float64": 98,
+      "int64": 41,
+      "object": 16
+    },
+    "duplicate_ids": 0,
+    "columns_over_40pct_missing": 50,
+    "columns_fully_populated": 57,
+    "mean_missing_rate": 0.2167
+  },
+  "target": {
+    "repaid": 16547,
+    "defaulted": 1453,
+    "default_rate": 0.0807,
+    "imbalance_ratio": 11.39
+  },
+  "target_figure": "eda_target_balance.png",
+  "feature_groups": {
+    "property": {
+      "count": 47,
+      "examples": [
+        "APARTMENTS_AVG",
+        "BASEMENTAREA_AVG",
+        "YEARS_BEGINEXPLUATATION_AVG",
+        "YEARS_BUILD_AVG",
+        "COMMONAREA_AVG"
+      ]
+    },
+    "credit_history_bureau": {
+      "count": 25,
+      "examples": [
+        "AMT_REQ_CREDIT_BUREAU_HOUR",
+        "AMT_REQ_CREDIT_BUREAU_DAY",
+        "AMT_REQ_CREDIT_BUREAU_WEEK",
+        "AMT_REQ_CREDIT_BUREAU_MON",
+        "AMT_REQ_CREDIT_BUREAU_QRT"
+      ]
+    },
+    "document": {
+      "count": 20,
+      "examples": [
+        "FLAG_DOCUMENT_2",
+        "FLAG_DOCUMENT_3",
+        "FLAG_DOCUMENT_4",
+        "FLAG_DOCUMENT_5",
+        "FLAG_DOCUMENT_6"
+      ]
+    },
+    "demographic": {
+      "count": 18,
+      "examples": [
+        "CODE_GENDER",
+        "CNT_CHILDREN",
+        "NAME_TYPE_SUITE",
+        "NAME_INCOME_TYPE",
+        "NAME_EDUCATION_TYPE"
+      ]
+    },
+    "repayment_behaviour": {
+      "count": 18,
+      "examples": [
+        "OBS_30_CNT_SOCIAL_CIRCLE",
+        "DEF_30_CNT_SOCIAL_CIRCLE",
+        "OBS_60_CNT_SOCIAL_CIRCLE",
+        "DEF_60_CNT_SOCIAL_CIRCLE",
+        "PREV_APP_COUNT"
+      ]
+    },
+    "financial": {
+      "count": 7,
+      "examples": [
+        "NAME_CONTRACT_TYPE",
+        "FLAG_OWN_CAR",
+        "FLAG_OWN_REALTY",
+        "AMT_INCOME_TOTAL",
+        "AMT_CREDIT"
+      ]
+    },
+    "other": {
+      "count": 6,
+      "examples": [
+        "DAYS_REGISTRATION",
+        "DAYS_ID_PUBLISH",
+        "OWN_CAR_AGE",
+        "WEEKDAY_APPR_PROCESS_START",
+        "HOUR_APPR_PROCESS_START"
+      ]
+    },
+    "contact": {
+      "count": 6,
+      "examples": [
+        "FLAG_MOBIL",
+        "FLAG_EMP_PHONE",
+        "FLAG_WORK_PHONE",
+        "FLAG_CONT_MOBILE",
+        "FLAG_PHONE"
+      ]
+    },
+    "employment": {
+      "count": 3,
+      "examples": [
+        "DAYS_EMPLOYED",
+        "OCCUPATION_TYPE",
+        "ORGANIZATION_TYPE"
+      ]
+    },
+    "external_source": {
+      "count": 3,
+      "examples": [
+        "EXT_SOURCE_1",
+        "EXT_SOURCE_2",
+        "EXT_SOURCE_3"
+      ]
+    }
+  },
+  "data_quality": {
+    "scorecard": [
+      {
+        "feature_group": "property",
+        "columns": 47,
+        "mean_completeness": 0.4214,
+        "worst_completeness": 0.2991,
+        "columns_over_40pct_missing": 47,
+        "fully_populated_columns": 0
+      },
+      {
+        "feature_group": "external_source",
+        "columns": 3,
+        "mean_completeness": 0.7446,
+        "worst_completeness": 0.4347,
+        "columns_over_40pct_missing": 1,
+        "fully_populated_columns": 0
+      },
+      {
+        "feature_group": "credit_history_bureau",
+        "columns": 25,
+        "mean_completeness": 0.8469,
+        "worst_completeness": 0.5905,
+        "columns_over_40pct_missing": 1,
+        "fully_populated_columns": 0
+      },
+      {
+        "feature_group": "employment",
+        "columns": 3,
+        "mean_completeness": 0.8937,
+        "worst_completeness": 0.6812,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 2
+      },
+      {
+        "feature_group": "other",
+        "columns": 8,
+        "mean_completeness": 0.9169,
+        "worst_completeness": 0.3354,
+        "columns_over_40pct_missing": 1,
+        "fully_populated_columns": 7
+      },
+      {
+        "feature_group": "repayment_behaviour",
+        "columns": 18,
+        "mean_completeness": 0.9551,
+        "worst_completeness": 0.8897,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 0
+      },
+      {
+        "feature_group": "demographic",
+        "columns": 18,
+        "mean_completeness": 0.9998,
+        "worst_completeness": 0.9964,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 17
+      },
+      {
+        "feature_group": "financial",
+        "columns": 7,
+        "mean_completeness": 0.9999,
+        "worst_completeness": 0.9994,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 5
+      },
+      {
+        "feature_group": "contact",
+        "columns": 6,
+        "mean_completeness": 1.0,
+        "worst_completeness": 1.0,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 6
+      },
+      {
+        "feature_group": "document",
+        "columns": 20,
+        "mean_completeness": 1.0,
+        "worst_completeness": 1.0,
+        "columns_over_40pct_missing": 0,
+        "fully_populated_columns": 20
+      }
+    ],
+    "anomalies": [
+      "DAYS_EMPLOYED = 365243 on 3,300 rows (18.3%) - a 'not employed' sentinel, not 1000 years",
+      "CODE_GENDER = 'XNA' on 1 rows - unknown, not a third class",
+      "AMT_INCOME_TOTAL max is 2,250,000 against a median of 148,500 (15x) - a single extreme outlier that distorts every ratio"
+    ],
+    "figure": "eda_missingness.png"
+  },
+  "insights": {
+    "income_bracket": {
+      "headline": "Default risk falls as income rises, but the effect is far weaker than credit-bureau signal.",
+      "figure": "eda_insight_income.png",
+      "table": [
+        {
+          "income_bracket": "<100k",
+          "applicants": 3777,
+          "default_rate": 0.0763
+        },
+        {
+          "income_bracket": "100-150k",
+          "applicants": 5266,
+          "default_rate": 0.0881
+        },
+        {
+          "income_bracket": "150-200k",
+          "applicants": 3762,
+          "default_rate": 0.0906
+        },
+        {
+          "income_bracket": "200-300k",
+          "applicants": 3828,
+          "default_rate": 0.0747
+        },
+        {
+          "income_bracket": "300k+",
+          "applicants": 1367,
+          "default_rate": 0.0541
+        }
+      ]
+    },
+    "contract_type": {
+      "headline": "Cash loans default materially more often than revolving credit.",
+      "figure": "eda_insight_contract.png",
+      "table": [
+        {
+          "NAME_CONTRACT_TYPE": "Cash loans",
+          "applicants": 16268,
+          "default_rate": 0.0838,
+          "avg_credit": 631438.3306
+        },
+        {
+          "NAME_CONTRACT_TYPE": "Revolving loans",
+          "applicants": 1732,
+          "default_rate": 0.052,
+          "avg_credit": 320884.8152
+        }
+      ]
+    },
+    "age_band": {
+      "headline": "Default risk falls monotonically with age; under-25s are the riskiest band in the portfolio.",
+      "figure": "eda_insight_age.png",
+      "table": [
+        {
+          "age_band": "<25",
+          "applicants": 748,
+          "default_rate": 0.119
+        },
+        {
+          "age_band": "25-29",
+          "applicants": 1949,
+          "default_rate": 0.116
+        },
+        {
+          "age_band": "30-34",
+          "applicants": 2325,
+          "default_rate": 0.0912
+        },
+        {
+          "age_band": "35-39",
+          "applicants": 2529,
+          "default_rate": 0.0945
+        },
+        {
+          "age_band": "40-49",
+          "applicants": 4349,
+          "default_rate": 0.0766
+        },
+        {
+          "age_band": "50-59",
+          "applicants": 3960,
+          "default_rate": 0.0626
+        },
+        {
+          "age_band": "60+",
+          "applicants": 2140,
+          "default_rate": 0.0495
+        }
+      ]
+    },
+    "external_scores": {
+      "headline": "External credit scores are the strongest single predictor in the dataset.",
+      "figure": "eda_insight_ext_source.png",
+      "table": [
+        {
+          "score": "EXT_SOURCE_1",
+          "coverage": 0.4347,
+          "correlation_with_target": -0.1543,
+          "default_rate_worst_decile": 0.1788,
+          "default_rate_best_decile": 0.0243,
+          "risk_ratio": 7.37
+        },
+        {
+          "score": "EXT_SOURCE_2",
+          "coverage": 0.9982,
+          "correlation_with_target": -0.1649,
+          "default_rate_worst_decile": 0.1948,
+          "default_rate_best_decile": 0.0356,
+          "risk_ratio": 5.47
+        },
+        {
+          "score": "EXT_SOURCE_3",
+          "coverage": 0.8009,
+          "correlation_with_target": -0.1804,
+          "default_rate_worst_decile": 0.2032,
+          "default_rate_best_decile": 0.0395,
+          "risk_ratio": 5.14
+        }
+      ]
+    },
+    "employment_length": {
+      "headline": "Default risk falls with tenure - and the 365243 sentinel group defaults LESS than employed applicants, because it is mostly pensioners. Binning it in would invert the trend it sits on.",
+      "figure": "eda_insight_employment.png",
+      "table": [
+        {
+          "band": "<1y",
+          "applicants": 1571,
+          "default_rate": 0.1184
+        },
+        {
+          "band": "1-3y",
+          "applicants": 3658,
+          "default_rate": 0.1162
+        },
+        {
+          "band": "3-5y",
+          "applicants": 2761,
+          "default_rate": 0.0916
+        },
+        {
+          "band": "5-10y",
+          "applicants": 3801,
+          "default_rate": 0.0702
+        },
+        {
+          "band": "10y+",
+          "applicants": 2909,
+          "default_rate": 0.0505
+        },
+        {
+          "band": "Not employed (sentinel)",
+          "applicants": 3300,
+          "default_rate": 0.053
+        }
+      ]
+    }
+  }
+}

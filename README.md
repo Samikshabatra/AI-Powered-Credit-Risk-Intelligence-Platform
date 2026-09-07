@@ -63,6 +63,45 @@ python -m src.talk_to_data.token_report      # token-optimisation measurement
 python -m src.talk_to_data.eval_harness      # NL->SQL accuracy (needs an API key)
 ```
 
+### Streamlit Community Cloud
+
+The public build runs from `deploy_artifacts/` — a small, anonymised, fully built
+copy of the platform that is committed to the repository. Streamlit Cloud clones
+the repo and runs `streamlit run app/ui.py`; there is no Kaggle download, no
+Docker build and no pipeline step on that host, so anything the deployed app
+shows has to already be in git. The full warehouse cannot go there in any case:
+it is 148 MB and GitHub rejects files over 100 MB.
+
+Rebuild the sample on a machine that has the data:
+
+```bash
+python scripts/prepare_streamlit_artifacts.py            # ~18,000 rows
+python scripts/prepare_streamlit_artifacts.py --rows 40000 --keep-ids
+```
+
+It samples `application_train.csv` stratified on TARGET, renumbers `SK_ID_CURR`
+to synthetic ids (`--keep-ids` leaves the published ones — the dataset is a
+public Kaggle release), filters `bureau` and `previous_application` to the
+sample, then runs the **real** pipeline over it: `build_database`,
+`run_training`, `extract_rules`, `run_full_eda` and the fairness report. Nothing
+is stubbed, so the demo is the platform on less data — and its ROC-AUC is
+correspondingly lower than the headline. `deploy_artifacts/build_manifest.json`
+records the sample size, the seed, the demo model's own metrics and every
+committed file with its size.
+
+Deploying:
+
+| Piece | Why |
+|---|---|
+| `packages.txt` → `libgomp1` | LightGBM's OpenMP runtime. An apt package; pip cannot supply it |
+| `STREAMLIT_CLOUD=1` in Secrets | Repoints every artifact, database and holdout path at `deploy_artifacts/` |
+| `DEMO_MODE=1` in Secrets | Caps model calls per browser session so a public key cannot be drained |
+| `ANTHROPIC_API_KEY` in Secrets | Optional — see below |
+
+`app/ui.py` copies `st.secrets` into `os.environ` before `settings` is built,
+which is how pydantic-settings sees them on a host with no `.env` file. See
+`.streamlit/secrets.toml.example`.
+
 ### Without an API key
 
 Everything except the chat assistant and NL→SQL runs offline: EDA, scoring, the Decision Trace, SHAP, adverse-action reason codes, business rules and the fairness report. The UI shows which capabilities are live in the sidebar. This is a design property, not a fallback — see *Deterministic twins* below.

@@ -1,0 +1,156 @@
+{
+  "built_at": "2026-09-07T08:23:17+0530",
+  "build_seconds": 18.1,
+  "sample": {
+    "requested_rows": 18000,
+    "actual_rows": 18000,
+    "seed": 42,
+    "stratified_on": "TARGET",
+    "anonymised": true,
+    "anonymisation": "SK_ID_CURR replaced with shuffled synthetic ids from 9,000,001; the same map applied to bureau and previous_application rows"
+  },
+  "model": {
+    "holdout_roc_auc": 0.7513,
+    "holdout_pr_auc": 0.2307,
+    "threshold": 0.0743,
+    "split_sizes": {
+      "train": 10800,
+      "valid": 1800,
+      "calib": 1800,
+      "holdout": 3600
+    }
+  },
+  "database_rows": {
+    "applications": 18000,
+    "bureau_summary": 15409,
+    "predictions": 18000,
+    "previous_summary": 17056
+  },
+  "cached_llm_reports": [
+    "nl_sql_eval.json",
+    "token_report.json"
+  ],
+  "shipped_bytes": 11681193,
+  "files": [
+    {
+      "path": "deploy_artifacts/credit_risk.db",
+      "bytes": 9347072
+    },
+    {
+      "path": "deploy_artifacts/processed/holdout.parquet",
+      "bytes": 880060
+    },
+    {
+      "path": "deploy_artifacts/models/lgbm_credit_risk.joblib",
+      "bytes": 777694
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_insight_ext_source.png",
+      "bytes": 64876
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_feature_importance.png",
+      "bytes": 58782
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_missingness.png",
+      "bytes": 52590
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_cost_curve.png",
+      "bytes": 45708
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_calibration.png",
+      "bytes": 38388
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_roc_curve.png",
+      "bytes": 34375
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/fairness_shift.png",
+      "bytes": 32563
+    },
+    {
+      "path": "deploy_artifacts/reports/model_metrics.json",
+      "bytes": 29378
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_pr_curve.png",
+      "bytes": 28902
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_baseline_comparison.png",
+      "bytes": 27966
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_insight_employment.png",
+      "bytes": 27182
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/ml_score_distribution.png",
+      "bytes": 26756
+    },
+    {
+      "path": "deploy_artifacts/reports/nl_sql_eval.json",
+      "bytes": 23946
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_insight_age.png",
+      "bytes": 23622
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_insight_contract.png",
+      "bytes": 23575
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/fairness_age.png",
+      "bytes": 22855
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_target_balance.png",
+      "bytes": 22188
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/eda_insight_income.png",
+      "bytes": 22174
+    },
+    {
+      "path": "deploy_artifacts/reports/figures/fairness_gender.png",
+      "bytes": 18725
+    },
+    {
+      "path": "deploy_artifacts/reports/feature_importance.json",
+      "bytes": 13562
+    },
+    {
+      "path": "deploy_artifacts/reports/business_rules.json",
+      "bytes": 13425
+    },
+    {
+      "path": "deploy_artifacts/reports/eda_summary.json",
+      "bytes": 9967
+    },
+    {
+      "path": "deploy_artifacts/models/preprocessor.joblib",
+      "bytes": 6308
+    },
+    {
+      "path": "deploy_artifacts/reports/fairness_report.json",
+      "bytes": 4672
+    },
+    {
+      "path": "deploy_artifacts/reports/token_report.json",
+      "bytes": 1899
+    },
+    {
+      "path": "deploy_artifacts/models/calibrator.joblib",
+      "bytes": 1079
+    },
+    {
+      "path": "deploy_artifacts/README.md",
+      "bytes": 904
+    }
+  ]
+}

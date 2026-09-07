@@ -1,0 +1,162 @@
+{
+  "population": 3600,
+  "decision_threshold": 0.0743,
+  "min_group_size": 500,
+  "groups": {
+    "gender": {
+      "rows": [
+        {
+          "group": "F",
+          "applicants": 2377,
+          "population_share": 0.6605,
+          "observed_default_rate": 0.0694,
+          "mean_predicted": 0.0751,
+          "roc_auc": 0.7638,
+          "approval_rate": 0.8305,
+          "recall": 0.4788,
+          "precision": 0.196,
+          "false_positive_rate": 0.1465,
+          "calibration_ratio": 1.082
+        },
+        {
+          "group": "M",
+          "applicants": 1222,
+          "population_share": 0.3395,
+          "observed_default_rate": 0.1031,
+          "mean_predicted": 0.0887,
+          "roc_auc": 0.7235,
+          "approval_rate": 0.7782,
+          "recall": 0.4683,
+          "precision": 0.2177,
+          "false_positive_rate": 0.1934,
+          "calibration_ratio": 0.86
+        }
+      ],
+      "gaps": {
+        "demographic_parity_gap": 0.0523,
+        "equal_opportunity_gap": 0.0105,
+        "predictive_parity_gap": 0.0217,
+        "auc_gap": 0.0403,
+        "calibration_ratio_spread": 0.222
+      }
+    },
+    "age_band": {
+      "rows": [
+        {
+          "group": "45-59",
+          "applicants": 1154,
+          "population_share": 0.3206,
+          "observed_default_rate": 0.0728,
+          "mean_predicted": 0.0678,
+          "roc_auc": 0.735,
+          "approval_rate": 0.8605,
+          "recall": 0.3571,
+          "precision": 0.1863,
+          "false_positive_rate": 0.1224,
+          "calibration_ratio": 0.931
+        },
+        {
+          "group": "35-44",
+          "applicants": 990,
+          "population_share": 0.275,
+          "observed_default_rate": 0.0838,
+          "mean_predicted": 0.079,
+          "roc_auc": 0.7424,
+          "approval_rate": 0.8273,
+          "recall": 0.4096,
+          "precision": 0.1988,
+          "false_positive_rate": 0.151,
+          "calibration_ratio": 0.942
+        },
+        {
+          "group": "25-34",
+          "applicants": 873,
+          "population_share": 0.2425,
+          "observed_default_rate": 0.1065,
+          "mean_predicted": 0.1028,
+          "roc_auc": 0.7679,
+          "approval_rate": 0.7068,
+          "recall": 0.6452,
+          "precision": 0.2344,
+          "false_positive_rate": 0.2513,
+          "calibration_ratio": 0.965
+        }
+      ],
+      "gaps": {
+        "demographic_parity_gap": 0.1537,
+        "equal_opportunity_gap": 0.2881,
+        "predictive_parity_gap": 0.0481,
+        "auc_gap": 0.0329,
+        "calibration_ratio_spread": 0.034
+      }
+    }
+  },
+  "distribution_shift": {
+    "label": "train vs holdout population stability index",
+    "caveat": "This is NOT temporal drift. application_train.csv carries no time axis and both splits are random samples of one snapshot, so these values should be near zero by construction. The measurement is wired and tested here so that a genuine time-ordered feed can be monitored without new code.",
+    "features": [
+      {
+        "feature": "EXT_SOURCE_2",
+        "psi": 0.00504,
+        "verdict": "stable",
+        "train_mean": 0.51,
+        "holdout_mean": 0.52
+      },
+      {
+        "feature": "AMT_ANNUITY",
+        "psi": 0.00486,
+        "verdict": "stable",
+        "train_mean": 27088.17,
+        "holdout_mean": 27618.17
+      },
+      {
+        "feature": "REGION_POPULATION_RELATIVE",
+        "psi": 0.00413,
+        "verdict": "stable",
+        "train_mean": 0.02,
+        "holdout_mean": 0.02
+      },
+      {
+        "feature": "DAYS_BIRTH",
+        "psi": 0.00351,
+        "verdict": "stable",
+        "train_mean": -16018.37,
+        "holdout_mean": -15992.13
+      },
+      {
+        "feature": "AMT_CREDIT",
+        "psi": 0.00344,
+        "verdict": "stable",
+        "train_mean": 601646.6,
+        "holdout_mean": 601194.5
+      },
+      {
+        "feature": "EXT_SOURCE_3",
+        "psi": 0.00337,
+        "verdict": "stable",
+        "train_mean": 0.51,
+        "holdout_mean": 0.51
+      },
+      {
+        "feature": "AMT_INCOME_TOTAL",
+        "psi": 0.0014,
+        "verdict": "stable",
+        "train_mean": 168585.3,
+        "holdout_mean": 168303.04
+      },
+      {
+        "feature": "CNT_CHILDREN",
+        "psi": 0.00025,
+        "verdict": "stable",
+        "train_mean": 0.42,
+        "holdout_mean": 0.42
+      }
+    ],
+    "max_psi": 0.00504
+  },
+  "figures": {
+    "gender": "fairness_gender.png",
+    "age_band": "fairness_age.png",
+    "shift": "fairness_shift.png"
+  }
+}

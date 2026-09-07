@@ -1,0 +1,717 @@
+[
+  {
+    "feature": "EXT_SOURCE_MEAN",
+    "gain": 41685.32827937603,
+    "split": 155
+  },
+  {
+    "feature": "ORGANIZATION_TYPE",
+    "gain": 18131.948272705078,
+    "split": 348
+  },
+  {
+    "feature": "EXT_SOURCE_MIN",
+    "gain": 13053.697878459468,
+    "split": 149
+  },
+  {
+    "feature": "EXT_SOURCE_3",
+    "gain": 8603.616535924375,
+    "split": 195
+  },
+  {
+    "feature": "GOODS_CREDIT_RATIO",
+    "gain": 8225.81537771225,
+    "split": 140
+  },
+  {
+    "feature": "PREV_CREDIT_TO_APPLICATION",
+    "gain": 6785.092281341553,
+    "split": 156
+  },
+  {
+    "feature": "CREDIT_TERM",
+    "gain": 6538.89052772522,
+    "split": 146
+  },
+  {
+    "feature": "EMPLOYED_TO_AGE_RATIO",
+    "gain": 6511.858553886414,
+    "split": 100
+  },
+  {
+    "feature": "BUREAU_DAYS_CREDIT_MAX",
+    "gain": 6305.925317406654,
+    "split": 154
+  },
+  {
+    "feature": "PREV_DAYS_DECISION_MIN",
+    "gain": 6143.555027961731,
+    "split": 161
+  },
+  {
+    "feature": "BUREAU_DAYS_ENDDATE_MAX",
+    "gain": 5766.501304864883,
+    "split": 126
+  },
+  {
+    "feature": "DAYS_LAST_PHONE_CHANGE",
+    "gain": 5591.194762229919,
+    "split": 114
+  },
+  {
+    "feature": "EXT_SOURCE_MAX",
+    "gain": 5561.250293016434,
+    "split": 119
+  },
+  {
+    "feature": "PREV_AMT_CREDIT_MAX",
+    "gain": 5234.226538181305,
+    "split": 134
+  },
+  {
+    "feature": "EXT_SOURCE_STD",
+    "gain": 5150.412333369255,
+    "split": 145
+  },
+  {
+    "feature": "OWN_CAR_AGE",
+    "gain": 4994.122815132141,
+    "split": 93
+  },
+  {
+    "feature": "DAYS_REGISTRATION",
+    "gain": 4954.395203590393,
+    "split": 121
+  },
+  {
+    "feature": "EXT_SOURCE_1",
+    "gain": 4826.454445302486,
+    "split": 109
+  },
+  {
+    "feature": "OCCUPATION_TYPE",
+    "gain": 4814.16971206665,
+    "split": 114
+  },
+  {
+    "feature": "DAYS_ID_PUBLISH",
+    "gain": 4810.615825653076,
+    "split": 129
+  },
+  {
+    "feature": "BUREAU_CREDIT_MEAN",
+    "gain": 4712.209501504898,
+    "split": 103
+  },
+  {
+    "feature": "BUREAU_DEBT_CREDIT_RATIO",
+    "gain": 4687.371066093445,
+    "split": 107
+  },
+  {
+    "feature": "PREV_DAYS_DECISION_MAX",
+    "gain": 4580.879296302795,
+    "split": 92
+  },
+  {
+    "feature": "PREV_CNT_PAYMENT_MEAN",
+    "gain": 4519.716576576233,
+    "split": 118
+  },
+  {
+    "feature": "AMT_ANNUITY",
+    "gain": 4329.243124961853,
+    "split": 95
+  },
+  {
+    "feature": "EXT_SOURCE_MEAN_X_AGE",
+    "gain": 4291.2114180624485,
+    "split": 75
+  },
+  {
+    "feature": "PREV_DOWN_PAYMENT_RATE_MEAN",
+    "gain": 4115.032582759857,
+    "split": 109
+  },
+  {
+    "feature": "REGION_POPULATION_RELATIVE",
+    "gain": 4022.2752134799957,
+    "split": 83
+  },
+  {
+    "feature": "PREV_AMT_APPLICATION_MEAN",
+    "gain": 4010.4031693935394,
+    "split": 90
+  },
+  {
+    "feature": "DAYS_EMPLOYED",
+    "gain": 3943.0642753839493,
+    "split": 98
+  },
+  {
+    "feature": "PREV_REFUSAL_RATE",
+    "gain": 3883.1221437454224,
+    "split": 76
+  },
+  {
+    "feature": "BUREAU_OVERDUE_MAX",
+    "gain": 3773.663516521454,
+    "split": 81
+  },
+  {
+    "feature": "EXT_SOURCE_2",
+    "gain": 3718.6208283901215,
+    "split": 83
+  },
+  {
+    "feature": "BUREAU_CREDIT_MAX",
+    "gain": 3709.9389181137085,
+    "split": 90
+  },
+  {
+    "feature": "CREDIT_INCOME_RATIO",
+    "gain": 3650.345729827881,
+    "split": 89
+  },
+  {
+    "feature": "BUREAU_DAYS_CREDIT_MIN",
+    "gain": 3567.6801228523254,
+    "split": 86
+  },
+  {
+    "feature": "ANNUITY_INCOME_RATIO",
+    "gain": 3512.269431114197,
+    "split": 79
+  },
+  {
+    "feature": "EMPLOYMENT_YEARS",
+    "gain": 3501.124834060669,
+    "split": 71
+  },
+  {
+    "feature": "DAYS_BIRTH",
+    "gain": 3355.476511001587,
+    "split": 76
+  },
+  {
+    "feature": "BUREAU_DEBT_INCOME_RATIO",
+    "gain": 3284.554094314575,
+    "split": 78
+  },
+  {
+    "feature": "BUREAU_ACTIVE_RATIO",
+    "gain": 3049.1615858078003,
+    "split": 65
+  },
+  {
+    "feature": "PREV_AMT_CREDIT_MEAN",
+    "gain": 3033.701488494873,
+    "split": 74
+  },
+  {
+    "feature": "AGE_YEARS",
+    "gain": 2915.727460563183,
+    "split": 57
+  },
+  {
+    "feature": "BUREAU_DAYS_CREDIT_MEAN",
+    "gain": 2854.1144604682922,
+    "split": 75
+  },
+  {
+    "feature": "LANDAREA_AVG",
+    "gain": 2621.7007994651794,
+    "split": 51
+  },
+  {
+    "feature": "INCOME_PER_PERSON",
+    "gain": 2601.3653240203857,
+    "split": 61
+  },
+  {
+    "feature": "BUREAU_CLOSED_COUNT",
+    "gain": 2577.1636123657227,
+    "split": 39
+  },
+  {
+    "feature": "BUREAU_CREDIT_TO_NEW_CREDIT",
+    "gain": 2443.2744131088257,
+    "split": 64
+  },
+  {
+    "feature": "BUREAU_LOAN_COUNT",
+    "gain": 2433.250410079956,
+    "split": 65
+  },
+  {
+    "feature": "BASEMENTAREA_AVG",
+    "gain": 2416.1647453308105,
+    "split": 52
+  },
+  {
+    "feature": "BUREAU_CREDIT_SUM",
+    "gain": 2393.816704750061,
+    "split": 54
+  },
+  {
+    "feature": "CREDIT_PER_PERSON",
+    "gain": 2306.2150917053223,
+    "split": 51
+  },
+  {
+    "feature": "HOUR_APPR_PROCESS_START",
+    "gain": 2243.4527707099915,
+    "split": 51
+  },
+  {
+    "feature": "WEEKDAY_APPR_PROCESS_START",
+    "gain": 2135.2703733444214,
+    "split": 66
+  },
+  {
+    "feature": "BUREAU_DEBT_SUM",
+    "gain": 2108.9894075393677,
+    "split": 49
+  },
+  {
+    "feature": "LIVINGAREA_AVG",
+    "gain": 2078.3024320602417,
+    "split": 45
+  },
+  {
+    "feature": "PREV_APPROVAL_RATE",
+    "gain": 2058.5877270698547,
+    "split": 49
+  },
+  {
+    "feature": "AMT_GOODS_PRICE",
+    "gain": 2049.6904406547546,
+    "split": 53
+  },
+  {
+    "feature": "NAME_INCOME_TYPE",
+    "gain": 2047.796199798584,
+    "split": 34
+  },
+  {
+    "feature": "APARTMENTS_AVG",
+    "gain": 1882.7177963256836,
+    "split": 39
+  },
+  {
+    "feature": "AMT_CREDIT",
+    "gain": 1806.4200010299683,
+    "split": 42
+  },
+  {
+    "feature": "AMT_INCOME_TOTAL",
+    "gain": 1804.0973148345947,
+    "split": 52
+  },
+  {
+    "feature": "YEARS_BEGINEXPLUATATION_AVG",
+    "gain": 1761.3894081115723,
+    "split": 44
+  },
+  {
+    "feature": "NONLIVINGAREA_AVG",
+    "gain": 1750.3383693695068,
+    "split": 41
+  },
+  {
+    "feature": "FLOORSMAX_AVG",
+    "gain": 1569.2231817245483,
+    "split": 21
+  },
+  {
+    "feature": "ENTRANCES_AVG",
+    "gain": 1546.2230987548828,
+    "split": 30
+  },
+  {
+    "feature": "COMMONAREA_AVG",
+    "gain": 1462.095196723938,
+    "split": 33
+  },
+  {
+    "feature": "NAME_EDUCATION_TYPE",
+    "gain": 1330.4889011383057,
+    "split": 25
+  },
+  {
+    "feature": "PREV_REFUSED_COUNT",
+    "gain": 1264.516408920288,
+    "split": 23
+  },
+  {
+    "feature": "PREV_APPROVED_COUNT",
+    "gain": 1220.0309200286865,
+    "split": 24
+  },
+  {
+    "feature": "PREV_APP_COUNT",
+    "gain": 1107.3516607284546,
+    "split": 26
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_YEAR",
+    "gain": 992.5637969970703,
+    "split": 24
+  },
+  {
+    "feature": "YEARS_BUILD_AVG",
+    "gain": 956.0078926086426,
+    "split": 16
+  },
+  {
+    "feature": "CODE_GENDER",
+    "gain": 933.3005905151367,
+    "split": 17
+  },
+  {
+    "feature": "DOCUMENT_SUBMITTED_COUNT",
+    "gain": 923.0916938781738,
+    "split": 18
+  },
+  {
+    "feature": "PREV_CANCELLED_COUNT",
+    "gain": 893.5486927032471,
+    "split": 15
+  },
+  {
+    "feature": "BUREAU_ACTIVE_COUNT",
+    "gain": 885.4243087768555,
+    "split": 23
+  },
+  {
+    "feature": "CONTACT_FLAG_COUNT",
+    "gain": 825.0031089782715,
+    "split": 17
+  },
+  {
+    "feature": "NONLIVINGAPARTMENTS_AVG",
+    "gain": 628.1960964202881,
+    "split": 14
+  },
+  {
+    "feature": "ELEVATORS_AVG",
+    "gain": 562.6640405654907,
+    "split": 18
+  },
+  {
+    "feature": "LIVINGAPARTMENTS_AVG",
+    "gain": 539.1325311660767,
+    "split": 14
+  },
+  {
+    "feature": "EXT_SOURCE_COUNT",
+    "gain": 526.843505859375,
+    "split": 6
+  },
+  {
+    "feature": "FLOORSMIN_AVG",
+    "gain": 452.67980003356934,
+    "split": 13
+  },
+  {
+    "feature": "FLAG_OWN_CAR",
+    "gain": 450.56859970092773,
+    "split": 6
+  },
+  {
+    "feature": "FLAG_PHONE",
+    "gain": 440.35000801086426,
+    "split": 5
+  },
+  {
+    "feature": "OBS_60_CNT_SOCIAL_CIRCLE",
+    "gain": 403.40488147735596,
+    "split": 11
+  },
+  {
+    "feature": "CNT_FAM_MEMBERS",
+    "gain": 382.57290267944336,
+    "split": 10
+  },
+  {
+    "feature": "OBS_30_CNT_SOCIAL_CIRCLE",
+    "gain": 375.7571907043457,
+    "split": 7
+  },
+  {
+    "feature": "FLAG_OWN_REALTY",
+    "gain": 338.15880012512207,
+    "split": 8
+  },
+  {
+    "feature": "FLAG_WORK_PHONE",
+    "gain": 320.77029609680176,
+    "split": 6
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_QRT",
+    "gain": 267.0948028564453,
+    "split": 8
+  },
+  {
+    "feature": "REG_CITY_NOT_WORK_CITY",
+    "gain": 245.20539665222168,
+    "split": 5
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_MON",
+    "gain": 207.39199829101562,
+    "split": 6
+  },
+  {
+    "feature": "CNT_CHILDREN",
+    "gain": 178.9862995147705,
+    "split": 6
+  },
+  {
+    "feature": "WALLSMATERIAL_MODE",
+    "gain": 169.6697006225586,
+    "split": 5
+  },
+  {
+    "feature": "REG_REGION_NOT_WORK_REGION",
+    "gain": 169.3769989013672,
+    "split": 1
+  },
+  {
+    "feature": "NAME_TYPE_SUITE",
+    "gain": 167.85529899597168,
+    "split": 6
+  },
+  {
+    "feature": "BUREAU_CREDIT_TYPE_NUNIQUE",
+    "gain": 155.39020347595215,
+    "split": 4
+  },
+  {
+    "feature": "DEF_60_CNT_SOCIAL_CIRCLE",
+    "gain": 134.5220012664795,
+    "split": 6
+  },
+  {
+    "feature": "FONDKAPREMONT_MODE",
+    "gain": 114.41819763183594,
+    "split": 3
+  },
+  {
+    "feature": "DEF_30_CNT_SOCIAL_CIRCLE",
+    "gain": 109.57829856872559,
+    "split": 4
+  },
+  {
+    "feature": "FLAG_DOCUMENT_3",
+    "gain": 92.2885971069336,
+    "split": 1
+  },
+  {
+    "feature": "NAME_FAMILY_STATUS",
+    "gain": 89.76889991760254,
+    "split": 3
+  },
+  {
+    "feature": "FLAG_EMAIL",
+    "gain": 75.8950023651123,
+    "split": 3
+  },
+  {
+    "feature": "REGION_RATING_CLIENT_W_CITY",
+    "gain": 64.09859848022461,
+    "split": 2
+  },
+  {
+    "feature": "LIVE_CITY_NOT_WORK_CITY",
+    "gain": 63.475101470947266,
+    "split": 2
+  },
+  {
+    "feature": "NAME_HOUSING_TYPE",
+    "gain": 57.6216983795166,
+    "split": 2
+  },
+  {
+    "feature": "NAME_CONTRACT_TYPE",
+    "gain": 47.71179962158203,
+    "split": 1
+  },
+  {
+    "feature": "REGION_RATING_CLIENT",
+    "gain": 32.31869888305664,
+    "split": 1
+  },
+  {
+    "feature": "REG_CITY_NOT_LIVE_CITY",
+    "gain": 14.664899826049805,
+    "split": 1
+  },
+  {
+    "feature": "LIVE_REGION_NOT_WORK_REGION",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_16",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_15",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_14",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_13",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_12",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_11",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_10",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_9",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_8",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_7",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_6",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_5",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_4",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_2",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "EMERGENCYSTATE_MODE",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "HOUSETYPE_MODE",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_EMP_PHONE",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_CONT_MOBILE",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "REG_REGION_NOT_LIVE_REGION",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "BUREAU_DAYS_OVERDUE_MAX",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "BUREAU_HAS_OVERDUE",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "BUREAU_PROLONG_SUM",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "BUREAU_OVERDUE_SUM",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_17",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_WEEK",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_DAY",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "AMT_REQ_CREDIT_BUREAU_HOUR",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_21",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_20",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_19",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "FLAG_DOCUMENT_18",
+    "gain": 0.0,
+    "split": 0
+  },
+  {
+    "feature": "IS_UNEMPLOYED",
+    "gain": 0.0,
+    "split": 0
+  }
+]

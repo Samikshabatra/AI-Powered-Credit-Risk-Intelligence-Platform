@@ -261,3 +261,20 @@ def test_agent_degrades_without_an_api_key(monkeypatch) -> None:
     llm.get_client.cache_clear() if hasattr(llm.get_client, "cache_clear") else None
     turn = chat_safely("what is the default rate?")
     assert turn.answer
+
+
+def test_leaf_size_floor_scales_with_the_population() -> None:
+    """A flat leaf-size floor produced one vacuous rule on a small population.
+
+    On the 3,600-row deployment sample a fixed `min_samples_leaf=2000` left no
+    admissible split, so the surrogate collapsed to a single leaf: fidelity
+    18.7%, one rule at 100% support and 1.00x lift. Scaling the floor keeps the
+    full 60,000-row run byte-identical and keeps a small population producing
+    real rules.
+    """
+    from src.rules.rule_extractor import MAX_DEPTH, min_samples_leaf
+
+    assert min_samples_leaf(60_000) == 2000        # the tuned full-run value
+    assert min_samples_leaf(3_600) < 3_600 / 2     # a first split is possible
+    # Every level of the tree must still be able to halve the population.
+    assert min_samples_leaf(3_600) * 2 ** MAX_DEPTH <= 3_600

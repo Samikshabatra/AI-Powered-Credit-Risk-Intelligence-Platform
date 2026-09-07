@@ -8,14 +8,42 @@ Streamlit app, or inside the Docker container.
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Repo root = two levels up from src/utils/config.py
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# The one folder that ships inside git: a small, anonymised, fully built copy of
+# the platform (model, reports, figures, sampled warehouse, sampled holdout).
+# Streamlit Community Cloud has no Kaggle data and no Docker build step, so the
+# deployed app reads this instead of `data/`, `models/` and `reports/`.
+DEPLOY_DIR = PROJECT_ROOT / "deploy_artifacts"
+
+
+def deploy_paths() -> dict[str, Path]:
+    """Path overrides used when STREAMLIT_CLOUD=1.
+
+    `scripts/prepare_streamlit_artifacts.py` writes to exactly these locations,
+    so the layout is defined once rather than duplicated between the builder and
+    the reader.
+    """
+    return {
+        "data_dir": DEPLOY_DIR,
+        "raw_dir": DEPLOY_DIR / "raw",
+        "processed_dir": DEPLOY_DIR / "processed",
+        "model_dir": DEPLOY_DIR / "models",
+        "report_dir": DEPLOY_DIR / "reports",
+        "sqlite_path": DEPLOY_DIR / "credit_risk.db",
+    }
+
+
+def _env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 class Settings(BaseSettings):
@@ -34,6 +62,16 @@ class Settings(BaseSettings):
     # No temperature setting: the Messages API in anthropic 1.x does not accept
     # one. Determinism comes from the prompt, not from a sampling parameter.
     enable_prompt_caching: bool = Field(default=True, alias="ENABLE_PROMPT_CACHING")
+
+    # ---------------- Deployment ----------------
+    # Set in Streamlit Cloud's Secrets. Switches every artifact path over to the
+    # committed `deploy_artifacts/` sample and relabels the build-status panel.
+    streamlit_cloud: bool = Field(default=False, alias="STREAMLIT_CLOUD")
+    # A public demo runs on a public key. DEMO_MODE caps how many model calls one
+    # browser session may spend; past the cap the assistant serves the recorded
+    # evaluation outputs instead of going quiet.
+    demo_mode: bool = Field(default=False, alias="DEMO_MODE")
+    demo_llm_call_budget: int = Field(default=8, alias="DEMO_LLM_CALL_BUDGET")
 
     # ---------------- Paths ----------------
     data_dir: Path = Field(default=Path("data"), alias="DATA_DIR")
@@ -70,6 +108,20 @@ class Settings(BaseSettings):
     def _absolutise(cls, value: Path) -> Path:
         """Relative paths are interpreted against the repo root, not the CWD."""
         return value if value.is_absolute() else (PROJECT_ROOT / value).resolve()
+
+    @model_validator(mode="after")
+    def _apply_deploy_paths(self) -> "Settings":
+        """On Streamlit Cloud, every artifact path points at `deploy_artifacts/`.
+
+        Applied after the fields are built rather than as a set of defaults, so
+        it also wins over a stray `MODEL_DIR=models` inherited from a `.env` or
+        pasted into the Secrets box. Nothing else in the codebase knows the
+        deployment layout - it is read back through `settings` like any path.
+        """
+        if self.streamlit_cloud:
+            for attribute, path in deploy_paths().items():
+                object.__setattr__(self, attribute, path)
+        return self
 
     # ---------------- Derived paths ----------------
     @property

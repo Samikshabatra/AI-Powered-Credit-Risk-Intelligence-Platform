@@ -62,3 +62,18 @@ Thumbs.db
 # Streamlit
 # ---------------------------------------------------------------------------
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# Streamlit Community Cloud deployment sample
+#
+# The host has no Kaggle data and no Docker build, so ONE small, anonymised,
+# fully built copy of the platform ships in git. Everything above stays ignored:
+# data/, models/ and reports/ are still local-only. Re-include by extension so a
+# stray raw CSV or the 148 MB full warehouse cannot slip in under this folder.
+# ---------------------------------------------------------------------------
+!/deploy_artifacts/**/*.db
+!/deploy_artifacts/**/*.parquet
+!/deploy_artifacts/**/*.joblib
+!/deploy_artifacts/**/*.png
+/deploy_artifacts/_work/
+/deploy_artifacts/raw/

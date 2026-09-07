@@ -10,6 +10,10 @@ default probability", which would be a number the method cannot support.
 
 TreeExplainer is exact for tree ensembles (no sampling), so a per-applicant
 explanation costs milliseconds and can run inline in the app.
+
+`shap` is imported lazily, inside the functions that need it. It pulls in numba
+and llvmlite - around 250 MB resident - and the deployed app has ~1 GB to work
+with, so a visitor who never opens the Explainability page never pays for it.
 """
 
 from __future__ import annotations
@@ -20,7 +24,6 @@ from functools import lru_cache
 import matplotlib
 import numpy as np
 import pandas as pd
-import shap
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
@@ -31,6 +34,14 @@ from src.utils.helpers import humanise_feature  # noqa: E402
 from src.utils.logger import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
+
+
+def _shap():
+    """Import `shap` on first use. See the module docstring for why."""
+    import shap
+
+    return shap
+
 
 # Features that carry no explanatory value for a human reader even when the
 # model leans on them - process artefacts rather than applicant characteristics.
@@ -76,7 +87,7 @@ class ShapExplainer:
 
     def __init__(self, scorer: RiskScorer | None = None) -> None:
         self.scorer = scorer or get_scorer()
-        self.explainer = shap.TreeExplainer(self.scorer.model)
+        self.explainer = _shap().TreeExplainer(self.scorer.model)
         self.feature_names = self.scorer.feature_names
         logger.info("TreeExplainer ready over %d features", len(self.feature_names))
 
@@ -189,7 +200,7 @@ class ShapExplainer:
         settings.figures_dir.mkdir(parents=True, exist_ok=True)
         path = settings.figures_dir / filename
         plt.figure(figsize=(8, 7))
-        shap.summary_plot(values, labelled, max_display=18, show=False)
+        _shap().summary_plot(values, labelled, max_display=18, show=False)
         plt.tight_layout()
         plt.savefig(path, dpi=130, bbox_inches="tight")
         plt.close("all")
@@ -204,7 +215,7 @@ class ShapExplainer:
         features = self.scorer.build_features(frame)
         values, base_value = self._shap_matrix(features)
 
-        explanation = shap.Explanation(
+        explanation = _shap().Explanation(
             values=values[0],
             base_values=base_value,
             data=features.iloc[0].to_numpy(),
@@ -216,7 +227,7 @@ class ShapExplainer:
         settings.figures_dir.mkdir(parents=True, exist_ok=True)
         path = settings.figures_dir / filename
         plt.figure(figsize=(8, 6))
-        shap.plots.waterfall(explanation, max_display=max_display, show=False)
+        _shap().plots.waterfall(explanation, max_display=max_display, show=False)
         plt.tight_layout()
         plt.savefig(path, dpi=130, bbox_inches="tight")
         plt.close("all")

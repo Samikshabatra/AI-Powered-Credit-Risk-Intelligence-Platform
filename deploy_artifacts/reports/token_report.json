@@ -1,0 +1,43 @@
+{
+  "prompt_version": "v1.3.0",
+  "counting_method": "character heuristic (~4 chars/token) - NO API KEY, THESE ARE ESTIMATES",
+  "exact": false,
+  "prefix": {
+    "shipped_tokens": 2725,
+    "naive_full_schema_tokens": 2699,
+    "shipped_schema_columns": 63,
+    "schema_compaction_saving_pct": -0.0096,
+    "semantic_layer_tokens": 682,
+    "exemplar_tokens": 356
+  },
+  "scenario": {
+    "turns": 6,
+    "assumed_result_tokens_per_turn": 400,
+    "naive_billable_input_tokens": 18653,
+    "optimised_billable_input_tokens": 5027,
+    "reduction_pct": 0.7305
+  },
+  "levers": [
+    {
+      "lever": "Prompt caching on the stable prefix",
+      "mechanism": "cache_control: ephemeral; cached tokens bill at 10%",
+      "applies_to": "2,725 tokens per turn after the first"
+    },
+    {
+      "lever": "Compact warehouse schema (39 curated columns of 122, and supplementary tables pre-aggregated rather than raw)",
+      "mechanism": "smaller DDL block inside the cached prefix - but the per-column comment glossary costs back what the dropped columns save",
+      "applies_to": "-26 tokens per turn - measured as roughly neutral, so this is a hallucination-control lever rather than a cost one"
+    },
+    {
+      "lever": "Haiku summarises result rows, not Sonnet",
+      "mechanism": "cheap model handles the largest, easiest payload; the Sonnet context never grows by the rows",
+      "applies_to": "~400 tokens per answered question"
+    },
+    {
+      "lever": "Retry cap of 2",
+      "mechanism": "bounds the worst case at three model calls per question",
+      "applies_to": "pathological questions only"
+    }
+  ],
+  "note": "Live cache behaviour is reported by the eval harness from usage.cache_read_input_tokens, which is a measurement rather than a model of one. Run `python -m src.talk_to_data.eval_harness` with an API key for those figures."
+}
