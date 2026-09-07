@@ -402,7 +402,7 @@ Two further details worth calling out:
 - **The gauge is scaled to the threshold, not to 0–100%.** At an 8% base rate a 0–1 gauge renders every applicant as a sliver; here the decision threshold sits at the centre of the arc, so the visual question is which side of the line the applicant falls on.
 - **Manual input starts from the portfolio median.** A form cannot supply 143 features, so untouched fields take the median and the page says so — a manual score is a what-if against a typical applicant, not a score built from six inputs.
 
-Charts are Altair (ships inside Streamlit, so nothing is added to the image) and stay hoverable; the matplotlib PNGs in `reports/figures/` remain the reproducible artifacts the notebook, README and deck cite.
+Charts are Altair (ships inside Streamlit, so nothing is added to the image) and stay hoverable; the matplotlib PNGs in `reports/figures/` remain the reproducible artifacts the notebook and README cite.
 
 ### 8 — Model health & fairness (`src/monitoring/fairness.py`)
 
@@ -526,14 +526,6 @@ All settings are environment variables (`.env.example` documents every one). The
 | `LGD_RATE` / `MARGIN_RATE` | `0.45` / `0.08` | The cost matrix — changing these moves the threshold and every dollar figure |
 | `SQL_ROW_LIMIT` / `SQL_MAX_RETRIES` | `200` / `2` | Guardrail bounds |
 | `ENABLE_PROMPT_CACHING` | `true` | Set false to measure the caching lever yourself |
-
----
-
-## Presentation
-
-`documents/project_presentation.pdf` — 14 slides, built by `documents/build_presentation.py`.
-
-Every number and chart on those slides is read from `reports/` at build time, so the deck cannot drift from the model: re-run the pipeline, re-run the generator, and it is current. The Decision Trace slide is drawn from a **live scoring call** — the applicant, the probability and the reason codes on it are real output, not a mock-up.
 
 ---
 
