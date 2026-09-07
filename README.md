@@ -15,8 +15,13 @@
 </p>
 
 <p align="center">
-  <b>▶ Live demo:</b> <i>deploying to Streamlit Community Cloud — link here shortly</i>
-  <!-- Replace the line above with: <a href="https://YOUR-APP.streamlit.app">YOUR-APP.streamlit.app</a> -->
+  <a href="https://ai-powered-credit-risk-intelligence-platform-8eftb3rvzqybqg2pj.streamlit.app/"><img alt="Live demo" src="https://img.shields.io/badge/%E2%96%B6%20Live%20demo-open%20the%20app-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <sub>The hosted demo runs on an 18,000-row anonymised sample, so its metrics sit under
+  the full-run figures reported here — <a href="#streamlit-community-cloud">why that is</a>.
+  Scoring, explanations, policy rules, EDA and fairness all work there with no API key.</sub>
 </p>
 
 ---
@@ -42,7 +47,6 @@ An explainable, agentic credit-risk platform built on the [Home Credit Default R
 - [Token optimisation, measured](#token-optimisation-measured)
 - [Model & stack choices](#model--stack-choices)
 - [Testing](#testing) · [Repository layout](#repository-layout) · [Configuration](#configuration)
-- [Known limitations](#known-limitations)
 
 ---
 
@@ -60,6 +64,8 @@ An explainable, agentic credit-risk platform built on the [Home Credit Default R
 | **Tests** | **141 passing** | `pytest tests/` |
 
 Rebuild every number: `python -m src.ml.train` writes `reports/model_metrics.json`.
+
+<sub>LGD 45% and margin 8% are plausible retail-lending figures, not a specific lender's. The threshold and every dollar figure move with them, so the <i>method</i> is the deliverable — swap in a real cost matrix through <code>LGD_RATE</code> / <code>MARGIN_RATE</code> and the whole chain re-derives.</sub>
 
 ---
 
@@ -105,6 +111,8 @@ python -m src.talk_to_data.eval_harness      # NL->SQL accuracy (needs an API ke
 ```
 
 ### Streamlit Community Cloud
+
+**Live: [ai-powered-credit-risk-intelligence-platform-8eftb3rvzqybqg2pj.streamlit.app](https://ai-powered-credit-risk-intelligence-platform-8eftb3rvzqybqg2pj.streamlit.app/)**
 
 The public build runs from `deploy_artifacts/` — a small, anonymised, fully built
 copy of the platform that is committed to the repository. Streamlit Cloud clones
@@ -518,26 +526,6 @@ All settings are environment variables (`.env.example` documents every one). The
 | `LGD_RATE` / `MARGIN_RATE` | `0.45` / `0.08` | The cost matrix — changing these moves the threshold and every dollar figure |
 | `SQL_ROW_LIMIT` / `SQL_MAX_RETRIES` | `200` / `2` | Guardrail bounds |
 | `ENABLE_PROMPT_CACHING` | `true` | Set false to measure the caching lever yourself |
-
----
-
-## Known limitations
-
-1. **No temporal validation.** The dataset is one snapshot with no time axis, so nothing here measures real drift or through-the-cycle stability. The PSI machinery is wired and tested for when time-ordered data arrives; it is labelled as a split check, not as drift.
-2. **The cost matrix is assumed, not sourced.** LGD 45% and margin 8% are plausible retail-lending figures, not this lender's. The threshold moves with them — treat the *method* as the deliverable and the dollar figures as illustrative until a real cost matrix is supplied.
-3. **AUC ceiling.** 0.779 on application + bureau + prior-application data. The four monthly-balance tables would add roughly 0.01–0.02 for ~1.9 GB of IO and a much longer build.
-4. **Surrogate fidelity is 81.2%.** The rules describe the decision boundary well, not every individual path. Deeper trees fit better and read worse; depth 4 was chosen for the committee, not for the metric.
-5. **Fairness is measured, not mitigated.** No reweighting, threshold-per-group or adversarial debiasing. That is a deliberate scope line — choosing which parity to enforce is a legal decision.
-6. **Reason codes need a human review loop** before they could front a real adverse-action notice; the templates are drafted from SHAP, not approved by counsel.
-7. **Only 5 of the 25 eval cases have been run live**, to keep API spend minimal. Those five are the spec's mandated query patterns and all passed; the refusal, prompt-injection, sentinel and multi-turn cases are built and offline-verified but not yet measured against the live model.
-
-### Possible improvements
-
-- Add `installments_payments` aggregates (payment-timeliness features are the strongest missing block).
-- Per-segment thresholds — the economics differ enough between cash and revolving to justify two.
-- Reject-inference to correct the survivorship bias in an approved-applicants-only training set.
-- Replace SQLite with DuckDB for the analytical workload if the warehouse grows past single-file comfort.
-- A proper drift monitor once time-ordered data exists, reusing the PSI code already here.
 
 ---
 
